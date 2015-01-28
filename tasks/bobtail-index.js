@@ -72,7 +72,6 @@ module.exports = function (grunt) {
                                     if (!paramDescription) {
                                         return callback('Параметр не задокументирован');
                                     }
-
                                     $e.removeAttr(paramAttrName).text(paramReplacePlacaholder + PLACEHOLDER_DELIMITER + paramName);
                                     blockIndex.params[paramName] = {
                                         description: paramDescription
