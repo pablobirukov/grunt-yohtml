@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="assets/app.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="assets/jquery.js"></script>
+</head>
+<body>
+<div class="app-wrapper">
+    <div class="app-container">
+        <div class="app-search">
+            <input type="text" class="app-search__control" id="search"/>
+        </div>
+    </div>
+    <div class="app-container">
+        <div id="index-list-container">
+
+        </div>
+    </div>
+</div>
+
+
+<script type="text/html" id="index_tmpl">
+    <% for (var itemName in index) { %>
+    <% if (index.hasOwnProperty(itemName)) { var item = index[itemName]; %>
+    <div class="app-example" id="<%= itemName %>">
+        <div class="app-example__header">
+            <h1 class="app-example__title"><%=itemName%></h2>
+                <div class="app-example__description">
+                    <%=item.description%>
+                </div>
+        </div>
+        <div class="app-example__body">
+            <% for (var paramName in item.params) { if (item.params.hasOwnProperty(paramName)) { var paramItem = item.params[paramName]; %>
+            <ul class="app-params">
+                <li class="params__param">
+                    <h1 class="app-example__title app-example__title_param"><%=paramName%></h2>
+                        <div class="app-example__description app-example__description_param">
+                            <%=paramItem.description%>
+                        </div>
+                </li>
+            </ul>
+            <% }} %>
+            <!--<div class="app-example__code">-->
+            <!--Code goes here-->
+            <!--</div>-->
+
+            <!--<div class="app-example__view">-->
+            <!--Module view goes here-->
+            <!--</div>-->
+        </div>
+    </div>
+    <% } %>
+    <% } %>
+</script>
+
+<script src="index.jsonp" type="text/javascript"></script>
+<script src="assets/microtemplating.js"></script>
+<script src="assets/index.js"></script>
+
+</body>
+</html>
