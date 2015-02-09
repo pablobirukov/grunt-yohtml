@@ -37,8 +37,10 @@
                 <li class="params__param">
                     <h1 class="app-example__title app-example__title_param"><%=paramName%></h2>
                         <div class="app-example__description app-example__description_param">
-                            <%=paramItem.description%>
+                            <%= paramItem.description %>
                         </div>
+                        <div>Insert: <%= paramItem.insert %></div>
+                        <div>Replace: <%= paramItem.replace %></div>
                 </li>
             </ul>
             <% }} %>
@@ -55,7 +57,7 @@
     <% } %>
 </script>
 
-<script src="../../output/index.jsonp" type="text/javascript"></script>
+<script src="bobtail-index.jsonp" type="text/javascript"></script>
 <script src="assets/microtemplating.js"></script>
 <script src="assets/index.js"></script>
 

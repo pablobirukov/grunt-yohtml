@@ -37,7 +37,7 @@ module.exports = function (grunt) {
                 flatten: true
             },
             options: {
-                index: 'output/index.json'
+                index: 'test/tmp/bobtail-index.json'
             }
         },
 

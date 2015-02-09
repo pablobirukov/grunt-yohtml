@@ -3,9 +3,7 @@
 var jquery = require('jquery'),
     jsdom = require('jsdom'),
     async = require('async'),
-    PARAM = 'param',
-    BLOCK = 'block',
-    PLACEHOLDER_DELIMITER = '::';
+    CONSTS = require('./lib/consts');
 
 module.exports = function (grunt) {
 
@@ -15,6 +13,7 @@ module.exports = function (grunt) {
                 nsPrefix: 'bt',
                 tagName: 'bobtail'
             }),
+            paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
             files = this.filesSrc,
             log = function (msgList) {
                 grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
@@ -29,22 +28,40 @@ module.exports = function (grunt) {
             done = this.async(),
             handleBlock = function($block, $body, $){
                 var params = {},
-                    blockName = $block.attr(BLOCK);
-                $block.removeAttr(BLOCK).children().each(function (el) {
+                    blockName = $block.attr(CONSTS.BLOCK);
+                $block.removeAttr(CONSTS.BLOCK).children().each(function () {
                     var $el = $(this),
-                        paramName = $el.prop('tagName');
+                        paramName = $el.prop('tagName').toLowerCase();
                     params[paramName] = {
-                        content: $el.html()
+                        content: $el.html(),
+                        $el: $el
                     };
                 });
-                $block.replaceWith(index[blockName].tpl);
+                var $newBlock = $(index[blockName].tpl);
+                $block.replaceWith($newBlock);
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
-                    $body.html(
-                        $body
-                            .html()
-                            .replace(options.nsPrefix + PLACEHOLDER_DELIMITER + PARAM + PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
-                    );
+                    if (params[paramName].$el.attr(CONSTS.REPLACE) !== undefined) {
+                        // REPLACE PARAMETER
+                        if (index[blockName].params[paramName].replace) {
+                            //$body.html(
+                                $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
+                            //);
+                        } else {
+                            grunt.util.error('Replace not allowed');
+                        }
+                    } else {
+                        // INSERT PARAMETER
+                        if (index[blockName].params[paramName].insert) {
+                            $body.html(
+                                $body
+                                    .html()
+                                    .replace(options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM + CONSTS.PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
+                            );
+                        } else {
+                            grunt.util.error('Replace not allowed');
+                        }
+                    }
                 }
             },
             getTheDeepestBlock = function($, $body){
