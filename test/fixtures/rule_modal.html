@@ -1,7 +1,7 @@
 <!-- Обязательно документировать каждый блок или параметр -->
 <div class="modal-base" bt-block="modal">
     <!-- Блок для отображения модального окна -->
-    <div class="modal-header modal-base__header">
+    <div class="modal-header modal-base__header" bt-param-replace="header">
         <ng-close-button ng-click="modalOptions.close('close')"></ng-close-button>
         <h4 class="modal-base__header-title" bt-param="header">
             <!-- Заголовок окна. Ждем текст-->

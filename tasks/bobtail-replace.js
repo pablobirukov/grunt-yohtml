@@ -4,6 +4,7 @@ var jquery = require('jquery'),
     jsdom = require('jsdom'),
     async = require('async'),
     PARAM = 'param',
+    BLOCK = 'block',
     PLACEHOLDER_DELIMITER = '::';
 
 module.exports = function (grunt) {
@@ -25,48 +26,64 @@ module.exports = function (grunt) {
                 log(msg);
             },
             index = grunt.file.readJSON(options.index),
-            done = this.async();
-        this.files.forEach(function (file) {
-            async.each(file.src, function (filepath, callback) {
+            done = this.async(),
+            handleBlock = function($block, $body, $){
+                var params = {},
+                    blockName = $block.attr(BLOCK);
+                $block.removeAttr(BLOCK).children().each(function (el) {
+                    var $el = $(this),
+                        paramName = $el.prop('tagName');
+                    params[paramName] = {
+                        content: $el.html()
+                    };
+                });
+                $block.replaceWith(index[blockName].tpl);
+                for (var paramName in params) {
+                    if (!params.hasOwnProperty(paramName)) continue;
+                    $body.html(
+                        $body
+                            .html()
+                            .replace(options.nsPrefix + PLACEHOLDER_DELIMITER + PARAM + PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
+                    );
+                }
+            },
+            getTheDeepestBlock = function($, $body){
+                var $blocks = $(options.tagName + '[block]');
+                if (!$blocks.length) {
+                    return false;
+                } else if ($blocks.length === 1) {
+                    return $blocks.eq(0);
+                } else {
+                    return Array.prototype.reduce.call($blocks, function(el1, el2) {
+                        el1.data('nestingLevel') = el1.data('nestingLevel') || $(el1).parentsUntil($body).length;
+                        el2.data('nestingLevel') = el2.data('nestingLevel') || $(el2).parentsUntil($body).length;
+                        return el2.data('nestingLevel') > el1.data('nestingLevel') ? el2 : el1;
+                    });
+                }
+            };
+
+        async.each(this.files, function(file, filesAsyncCb){
+            async.each(file.src, function (filepath, filePathAsyncCB) {
                 jsdom.env(grunt.file.read(filepath, {encoding: 'utf8'}),
                     ['./lib/jquery.js'],
                     function (errors, window) {
                         if (errors) {
                             errorCallback(errors);
                         } else {
-                            for (var blockName in index) {
-                                var $ = window.$;
-                                if (index.hasOwnProperty(blockName)) {
-                                    var $block = $(options.tagName + '[block=' + blockName + ']');
-                                    if (!$block.length) continue;
-                                    var params = {};
-                                    $block.children().each(function (el) {
-                                        var $el = $(this),
-                                            paramName = $el.prop('tagName');
-                                        params[paramName] = {
-                                            content: $el.html()
-                                        };
-                                    });
-                                    $block.replaceWith(index[blockName].tpl);
-                                    var $body = $('body');
-                                    for (var paramName in params) {
-                                        if (!params.hasOwnProperty(paramName)) continue;
-                                        $body.html(
-                                            $body
-                                                .html()
-                                                .replace(options.nsPrefix + PLACEHOLDER_DELIMITER + PARAM + PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
-                                        );
-                                    }
-                                    grunt.file.write(file.dest + filepath, $body.html());
-                                }
+                            var $ = window.$,
+                                blocks = {},
+                                $body = $('body'),
+                                $block = null;
+                            while (($block = getTheDeepestBlock($, $body))) {
+                                handleBlock($block, $body, $);
                             }
+                            grunt.file.write(file.dest + filepath, $body.html());
                         }
-                        callback();
+                        filePathAsyncCB();
                     });
-            }, function (err) {
-                if (err) return log(err);
-                done();
-            });
+            }, filesAsyncCb);
+        }, function(){
+            done();
         });
     });
 };

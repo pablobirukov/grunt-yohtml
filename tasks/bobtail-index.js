@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                                 return callback('Блок не задокументирован');
                             }
 
-                            $block.removeAttr(paramAttrName);
+                            $block.removeAttr(blockAttrName);
                             blockIndex.description = blockDescription;
 
                             $('[' + paramAttrName + ']').each(function (i, e) {
@@ -87,8 +87,10 @@ module.exports = function (grunt) {
                 if (err) {
                     log(err);
                 } else {
-                    grunt.file.write(file.dest + '/bobtail-index.json', JSON.stringify(index), {encoding: 'utf8'});
-                    grunt.file.write(file.dest + '/bobtail-index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
+                    ['index.html', 'assets/app.css', 'assets/index.js', 'assets/jquery.js', 'assets/microtemplating.js']
+                        .forEach(function(filepath) {grunt.file.copy('./tasks/output_doc/' + filepath, file.dest + filepath)});
+                    grunt.file.write(file.dest + 'bobtail-index.json', JSON.stringify(index), {encoding: 'utf8'});
+                    grunt.file.write(file.dest + 'bobtail-index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
                 }
                 done();
             });

@@ -30,9 +30,11 @@ module.exports = function (grunt) {
         },
         'bobtail-replace': {
             files: {
-                src: 'test/fixtures/tpl_*.html',
-                dest: 'test/tmp1/'
-                //,cwd: 'test/fixtures/'
+                src: 'fixtures/tpl_*.html',
+                dest: 'tmp1/'
+                ,cwd: 'test/',
+                expand: true,
+                flatten: true
             },
             options: {
                 index: 'output/index.json'
