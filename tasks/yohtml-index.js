@@ -22,10 +22,10 @@ module.exports = function (grunt) {
             return $("<div />").append($el.clone()).html().replace(/\n/g, '').trim();
         };
 
-    grunt.registerMultiTask('bobtail-index', 'Concatenate files.', function () {
+    grunt.registerMultiTask('yohtml-index', 'Yohtml index file builder.', function () {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
-                nsPrefix: 'bt'
+                nsPrefix: CONSTS.NS_PREFIX
             }),
             blockAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.BLOCK,
             paramAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
                                 blockDescription = getFirstCommentValueFromEl($block),
                                 blockIndex = {params: {}};
                             if (!blockDescription) {
-                                grunt.log.error('Block "' + blockName + '" is not docummented. ' +
+                                grunt.log.error('Block "' + blockName + '" is not documented. ' +
                                 'The first direct child or block must be a comment');
                                 taskSuccess = false;
                                 return callback('Block undocumented');
@@ -121,8 +121,8 @@ module.exports = function (grunt) {
                         .forEach(function (filepath) {
                             grunt.file.copy('./tasks/output_doc/' + filepath, file.dest + filepath)
                         });
-                    grunt.file.write(file.dest + 'bobtail-index.json', JSON.stringify(index), {encoding: 'utf8'});
-                    grunt.file.write(file.dest + 'bobtail-index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
+                    grunt.file.write(file.dest + 'index.json', JSON.stringify(index), {encoding: 'utf8'});
+                    grunt.file.write(file.dest + 'index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
                 }
                 done(taskSuccess);
             });

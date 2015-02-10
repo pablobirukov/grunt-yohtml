@@ -17,8 +17,8 @@ exports.btIndex = {
   default_options: function(test) {
     test.expect(1);
 
-    var actual = getIndexObject('test/tmp/bobtail-index.json');
-    var expected = getIndexObject('test/expected/bobtail-index.json');
+    var actual = getIndexObject('test/tmp/index.json');
+    var expected = getIndexObject('test/expected/index.json');
     test.equal(actual['form-group']['params']['label']['description'], expected['form-group']['params']['label']['description'], 'should check generateg label');
 
     test.done();

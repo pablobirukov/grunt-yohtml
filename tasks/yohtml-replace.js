@@ -7,11 +7,11 @@ var jquery = require('jquery'),
 
 module.exports = function (grunt) {
 
-    grunt.registerMultiTask('bobtail-replace', 'Bobtail preprocessor.', function () {
+    grunt.registerMultiTask('yohtml-replace', 'Yohtml preprocessor.', function () {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
-                nsPrefix: 'bt',
-                tagName: 'bobtail'
+                nsPrefix: CONSTS.NS_PREFIX,
+                tagName: CONSTS.TAG_NAME
             }),
             paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
             files = this.filesSrc,

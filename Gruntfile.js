@@ -19,16 +19,17 @@ module.exports = function (grunt) {
 
         // Before generating any new files, remove any previously-created files.
         clean: {
-            tests: ['test/tmp']
+            tests: ['test/tmp'],
+            output: ['tmp1']
         },
 
-        'bobtail-index': {
+        'yohtml-index': {
             files: {
                 src: 'test/fixtures/rule_*.html',
                 dest: 'test/tmp/'
             }
         },
-        'bobtail-replace': {
+        'yohtml-replace': {
             files: {
                 src: 'fixtures/tpl_*.html',
                 dest: 'tmp1/'
@@ -37,7 +38,7 @@ module.exports = function (grunt) {
                 flatten: true
             },
             options: {
-                index: 'test/tmp/bobtail-index.json'
+                index: 'test/tmp/index.json'
             }
         },
 
@@ -58,7 +59,10 @@ module.exports = function (grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('test', ['clean', 'bobtail-index', 'nodeunit']);
+    grunt.registerTask('test', ['clean', 'yohtml-index', 'nodeunit']);
+
+    grunt.registerTask('index', ['clean:tests', 'yohtml-index']);
+    grunt.registerTask('replace', ['clean:output', 'yohtml-replace']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);
