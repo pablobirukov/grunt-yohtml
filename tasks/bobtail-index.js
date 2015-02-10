@@ -4,11 +4,6 @@ var jquery = require('jquery'),
     jsdom = require('jsdom'),
     async = require('async'),
     CONSTS = require('./lib/consts'),
-    //BLOCK = 'block',
-    //PARAM = 'param',
-    //REPLACE = 'replace',
-    //TAG_DELIMETER = '-',
-    //PLACEHOLDER_DELIMITER = '::',
     getFirstCommentValueFromEl = function ($el) {
         var value = $el ? $el.contents().filter(function () {
             return this.nodeType === 8;
