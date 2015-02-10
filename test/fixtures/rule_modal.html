@@ -1,13 +1,17 @@
 <!-- Обязательно документировать каждый блок или параметр -->
-<div class="modal-base" yo-block="modal">
+<div class="modal-base"
+     yo-block="modal">
     <!-- Блок для отображения модального окна -->
-    <div class="modal-header modal-base__header" yo-replace-param="header">
+    <div class="modal-header modal-base__header"
+         yo-replace-param="header">
         <ng-close-button ng-click="modalOptions.close('close')"></ng-close-button>
-        <h4 class="modal-base__header-title" yo-param="header">
+        <h4 class="modal-base__header-title"
+            yo-param="header">
             <!-- Заголовок окна. Ждем текст-->
         </h4>
     </div>
-    <div class="modal-body modal-base__body" yo-param="content">
+    <div class="modal-body modal-base__body"
+         yo-param="content">
         <!-- Контент модалки. Ждем HTML -->
     </div>
 </div>

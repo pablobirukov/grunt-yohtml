@@ -39,8 +39,10 @@
                         <div class="app-example__description app-example__description_param">
                             <%= paramItem.description %>
                         </div>
-                        <div>Insert: <%= paramItem.insert %></div>
-                        <div>Replace: <%= paramItem.replace %></div>
+                        <div class="app-example__tags">
+                            <div class="app-example__tag app-example__tag_<%= paramItem.insert ? 'true' : 'false' %>">Insert</div>
+                            <div  class="app-example__tag app-example__tag_<%= paramItem.replace ? 'true' : 'false' %>">Replace</div>
+                        </div>
                 </li>
             </ul>
             <% }} %>

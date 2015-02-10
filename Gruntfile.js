@@ -32,8 +32,8 @@ module.exports = function (grunt) {
         'yohtml-replace': {
             files: {
                 src: 'fixtures/tpl_*.html',
-                dest: 'tmp1/'
-                ,cwd: 'test/',
+                dest: 'tmp1/',
+                cwd: 'test/',
                 expand: true,
                 flatten: true
             },
