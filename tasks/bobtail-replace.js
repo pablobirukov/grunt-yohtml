@@ -18,14 +18,9 @@ module.exports = function (grunt) {
             log = function (msgList) {
                 grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
             },
-            successCallback = function (msg) {
-                log(msg);
-            },
-            errorCallback = function (msg) {
-                log(msg);
-            },
             index = grunt.file.readJSON(options.index),
             done = this.async(),
+            taskSuccess = true,
             handleBlock = function($block, $body, $){
                 var params = {},
                     blockName = $block.attr(CONSTS.BLOCK);
@@ -38,17 +33,16 @@ module.exports = function (grunt) {
                     };
                 });
                 var $newBlock = $(index[blockName].tpl);
-                $block.replaceWith($newBlock);
+                $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
                     if (params[paramName].$el.attr(CONSTS.REPLACE) !== undefined) {
                         // REPLACE PARAMETER
                         if (index[blockName].params[paramName].replace) {
-                            //$body.html(
-                                $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
-                            //);
+                            $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
                         } else {
-                            grunt.util.error('Replace not allowed');
+                            log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
+                            return taskSuccess = false;
                         }
                     } else {
                         // INSERT PARAMETER
@@ -59,10 +53,12 @@ module.exports = function (grunt) {
                                     .replace(options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM + CONSTS.PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
                             );
                         } else {
-                            grunt.util.error('Replace not allowed');
+                            log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
+                            return taskSuccess = false;
                         }
                     }
                 }
+                return true;
             },
             getTheDeepestBlock = function($, $body){
                 var $blocks = $(options.tagName + '[block]');
@@ -72,9 +68,11 @@ module.exports = function (grunt) {
                     return $blocks.eq(0);
                 } else {
                     return Array.prototype.reduce.call($blocks, function(el1, el2) {
-                        el1.data('nestingLevel') = el1.data('nestingLevel') || $(el1).parentsUntil($body).length;
-                        el2.data('nestingLevel') = el2.data('nestingLevel') || $(el2).parentsUntil($body).length;
-                        return el2.data('nestingLevel') > el1.data('nestingLevel') ? el2 : el1;
+                        var $el1 = $(el1),
+                            $el2 = $(el2);
+                        $el1.data('nestingLevel', $el1.data('nestingLevel') || $el1.parentsUntil($body).length);
+                        $el2.data('nestingLevel', $el2.data('nestingLevel') || $el2.parentsUntil($body).length);
+                        return $el2.data('nestingLevel') > $el2.data('nestingLevel') ? $el2 : $el2;
                     });
                 }
             };
@@ -85,22 +83,29 @@ module.exports = function (grunt) {
                     ['./lib/jquery.js'],
                     function (errors, window) {
                         if (errors) {
-                            errorCallback(errors);
+                            log(errors);
                         } else {
                             var $ = window.$,
                                 blocks = {},
                                 $body = $('body'),
                                 $block = null;
                             while (($block = getTheDeepestBlock($, $body))) {
-                                handleBlock($block, $body, $);
+                                var result = handleBlock($block, $body, $);
+                                if (!result) {
+                                    filePathAsyncCB('Can\'t handle block');
+                                }
                             }
                             grunt.file.write(file.dest + filepath, $body.html());
                         }
                         filePathAsyncCB();
                     });
             }, filesAsyncCb);
-        }, function(){
-            done();
+        }, function(err){
+            if (err) {
+                log('REMOVE log call: ', err);
+            } else {
+                done(taskSuccess);
+            }
         });
     });
 };

@@ -1,23 +1,26 @@
 'use strict';
-
-var jquery = require('jquery'),
-    jsdom = require('jsdom'),
-    async = require('async'),
-    CONSTS = require('./lib/consts'),
-    getFirstCommentValueFromEl = function ($el) {
-        var value = $el ? $el.contents().filter(function () {
-            return this.nodeType === 8;
-        }).get(0).nodeValue : false;
-        return value ? value.trim() : '';
-    },
-    getUTplFromEl = function ($el, $) {
-        $el.contents().filter(function () {
-            return this.nodeType === 8;
-        }).remove();
-        return $("<div />").append($el.clone()).html().replace(/\n/g, '').trim();
-    };
-
 module.exports = function (grunt) {
+
+    var jquery = require('jquery'),
+        jsdom = require('jsdom'),
+        async = require('async'),
+        CONSTS = require('./lib/consts'),
+        getFirstCommentValueFromEl = function ($el) {
+            var firstComment = $el ? $el.contents().filter(function () {
+                return this.nodeType === 8;
+            }).get(0) : false;
+            if (!firstComment) {
+                return false;
+            } else {
+                return firstComment.nodeValue ? firstComment.nodeValue.trim() : '';
+            }
+        },
+        getUTplFromEl = function ($el, $) {
+            $el.contents().filter(function () {
+                return this.nodeType === 8;
+            }).remove();
+            return $("<div />").append($el.clone()).html().replace(/\n/g, '').trim();
+        };
 
     grunt.registerMultiTask('bobtail-index', 'Concatenate files.', function () {
         // Merge task-specific and/or target-specific options with these defaults.
@@ -39,7 +42,8 @@ module.exports = function (grunt) {
                 grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
             },
             index = {},
-            done = this.async();
+            done = this.async(),
+            taskSuccess = true;
 
         this.files.forEach(function (file) {
 
@@ -57,7 +61,10 @@ module.exports = function (grunt) {
                                 blockDescription = getFirstCommentValueFromEl($block),
                                 blockIndex = {params: {}};
                             if (!blockDescription) {
-                                return callback('Блок не задокументирован');
+                                grunt.log.error('Block "' + blockName + '" is not docummented. ' +
+                                'The first direct child or block must be a comment');
+                                taskSuccess = false;
+                                return callback('Block undocumented');
                             }
 
                             $block.removeAttr(blockAttrName);
@@ -87,7 +94,10 @@ module.exports = function (grunt) {
                                 var paramObject = paramMap[paramName],
                                     paramDescription = getFirstCommentValueFromEl(paramObject.ip) || getFirstCommentValueFromEl(paramObject.rp);
                                 if (!paramDescription) {
-                                    return callback('Параметр' + paramName + ' не задокументирован');
+                                    grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
+                                    'The first direct child or parameter must be a comment');
+                                    taskSuccess = false;
+                                    return callback('Parameter undocumented');
                                 }
                                 if (paramObject.ip) {
                                     paramObject.ip.removeAttr(paramAttrName).text(paramReplacePlacaholder + CONSTS.PLACEHOLDER_DELIMITER + paramName);
@@ -114,7 +124,7 @@ module.exports = function (grunt) {
                     grunt.file.write(file.dest + 'bobtail-index.json', JSON.stringify(index), {encoding: 'utf8'});
                     grunt.file.write(file.dest + 'bobtail-index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
                 }
-                done();
+                done(taskSuccess);
             });
         });
 
