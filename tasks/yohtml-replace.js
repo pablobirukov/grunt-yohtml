@@ -2,18 +2,13 @@
 
 var jquery = require('jquery'),
     jsdom = require('jsdom'),
-    async = require('async'),
-    CONSTS = require('./lib/consts');
+    async = require('async');
 
 module.exports = function (grunt) {
 
     grunt.registerMultiTask('yohtml-replace', 'Yohtml preprocessor.', function () {
-        // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options({
-                nsPrefix: CONSTS.NS_PREFIX,
-                tagName: CONSTS.TAG_NAME
-            }),
-            paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
+        var options = this.options({}),
+            CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,
             log = function (msgList) {
                 grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
@@ -23,8 +18,8 @@ module.exports = function (grunt) {
             taskSuccess = true,
             handleBlock = function($block, $body, $){
                 var params = {},
-                    blockName = $block.attr(CONSTS.BLOCK);
-                $block.removeAttr(CONSTS.BLOCK).children().each(function () {
+                    blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
+                $block.removeAttr(CONSTS.YO_BLOCK).children().each(function () {
                     var $el = $(this),
                         paramName = $el.prop('tagName').toLowerCase();
                     params[paramName] = {
@@ -36,10 +31,11 @@ module.exports = function (grunt) {
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
-                    if (params[paramName].$el.attr(CONSTS.REPLACE) !== undefined) {
+                    if (params[paramName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
                         if (index[blockName].params[paramName].replace) {
-                            $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
+                            // find [yo-param-replace] and replace whole element
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[paramName].content);
                         } else {
                             log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
                             return taskSuccess = false;
@@ -47,10 +43,11 @@ module.exports = function (grunt) {
                     } else {
                         // INSERT PARAMETER
                         if (index[blockName].params[paramName].insert) {
+                            // @TODO replace by attr
                             $body.html(
                                 $body
                                     .html()
-                                    .replace(options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM + CONSTS.PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
+                                    .replace('yo::param::' + paramName.toLowerCase(), params[paramName].content)
                             );
                         } else {
                             log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
@@ -61,7 +58,8 @@ module.exports = function (grunt) {
                 return true;
             },
             getTheDeepestBlock = function($, $body){
-                var $blocks = $(options.tagName + '[block]');
+                var $blocks = $(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + ']');
+
                 if (!$blocks.length) {
                     return false;
                 } else if ($blocks.length === 1) {

@@ -4,7 +4,6 @@ module.exports = function (grunt) {
     var jquery = require('jquery'),
         jsdom = require('jsdom'),
         async = require('async'),
-        CONSTS = require('./lib/consts'),
         getFirstCommentValueFromEl = function ($el) {
             var firstComment = $el ? $el.contents().filter(function () {
                 return this.nodeType === 8;
@@ -23,9 +22,8 @@ module.exports = function (grunt) {
         };
 
     grunt.registerMultiTask('yohtml-index', 'Yohtml index file builder.', function () {
-        // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({}),
-            CONSTS = CONSTS(options.nsPrefix),
+            CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,
             successCallback = function (msg) {
                 grunt.log.writeln(msg);
