@@ -40,6 +40,10 @@ module.exports = function (grunt) {
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
+                    if (!index[blockName].params[paramName]) {
+                        grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not defined');
+                        return taskSuccess = false;
+                    }
                     if (params[paramName].$el.attr(CONSTS.REPLACE) !== undefined) {
                         // REPLACE PARAMETER
                         if (index[blockName].params[paramName].replace) {
