@@ -24,13 +24,8 @@ module.exports = function (grunt) {
 
     grunt.registerMultiTask('yohtml-index', 'Yohtml index file builder.', function () {
         // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options({
-                nsPrefix: CONSTS.NS_PREFIX
-            }),
-            blockAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.BLOCK,
-            paramAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
-            paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
-            paramReplacePlacaholder = options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM,
+        var options = this.options({}),
+            CONSTS = CONSTS(options.nsPrefix),
             files = this.filesSrc,
             successCallback = function (msg) {
                 grunt.log.writeln(msg);
@@ -56,8 +51,8 @@ module.exports = function (grunt) {
                             errorCallback(errors);
                         } else {
                             var $ = window.$,
-                                $block = $('[' + blockAttrName + ']'),
-                                blockName = $block.attr(blockAttrName),
+                                $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
+                                blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
                                 blockDescription = getFirstCommentValueFromEl($block),
                                 blockIndex = {params: {}};
                             if (!blockDescription) {
@@ -67,7 +62,7 @@ module.exports = function (grunt) {
                                 return callback('Block undocumented');
                             }
 
-                            $block.removeAttr(blockAttrName);
+                            $block.removeAttr(CONSTS.ATTR.RULE_BLOCK);
                             blockIndex.description = blockDescription;
 
                             /**
@@ -77,15 +72,15 @@ module.exports = function (grunt) {
                              */
 
                             var paramMap = {},
-                                $paramsReplaceList = $('[' + paramReplaceAttrName + ']').each(function () {
+                                $paramsReplaceList = $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
                                     var $this = $(this),
-                                        paramName = $this.attr(paramReplaceAttrName);
+                                        paramName = $this.attr(CONSTS.ATTR.RULE_PARAM_REPLACE);
                                     paramMap[paramName] = paramMap[paramName] || {};
                                     paramMap[paramName].rp = $this;
                                 }),
-                                $paramList = $('[' + paramAttrName + ']').each(function () {
+                                $paramList = $('[' + CONSTS.ATTR.RULE_PARAM + ']').each(function () {
                                     var $this = $(this),
-                                        paramName = $this.attr(paramAttrName);
+                                        paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
                                     paramMap[paramName] = paramMap[paramName] || {};
                                     paramMap[paramName].ip = $this;
                                 });
@@ -100,7 +95,7 @@ module.exports = function (grunt) {
                                     return callback('Parameter undocumented');
                                 }
                                 if (paramObject.ip) {
-                                    paramObject.ip.removeAttr(paramAttrName).text(paramReplacePlacaholder + CONSTS.PLACEHOLDER_DELIMITER + paramName);
+                                    paramObject.ip.removeAttr(CONSTS.ATTR.RULE_PARAM).text('yo::param::' + paramName);
                                 }
                                 blockIndex.params[paramName] = {
                                     description: paramDescription,
