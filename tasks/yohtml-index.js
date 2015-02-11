@@ -4,7 +4,6 @@ module.exports = function (grunt) {
     var jquery = require('jquery'),
         jsdom = require('jsdom'),
         async = require('async'),
-        CONSTS = require('./lib/consts'),
         getFirstCommentValueFromEl = function ($el) {
             var firstComment = $el ? $el.contents().filter(function () {
                 return this.nodeType === 8;
@@ -23,14 +22,8 @@ module.exports = function (grunt) {
         };
 
     grunt.registerMultiTask('yohtml-index', 'Yohtml index file builder.', function () {
-        // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options({
-                nsPrefix: CONSTS.NS_PREFIX
-            }),
-            blockAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.BLOCK,
-            paramAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
-            paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
-            paramReplacePlacaholder = options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM,
+        var options = this.options({}),
+            CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,
             successCallback = function (msg) {
                 grunt.log.writeln(msg);
@@ -56,10 +49,11 @@ module.exports = function (grunt) {
                             errorCallback(errors);
                         } else {
                             var $ = window.$,
-                                $block = $('[' + blockAttrName + ']'),
-                                blockName = $block.attr(blockAttrName),
+                                $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
+                                blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
+                                blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
                                 blockDescription = getFirstCommentValueFromEl($block),
-                                blockIndex = {params: {}};
+                                blockIndex = {params: {}, match: blockMatchExpression};
                             if (!blockDescription) {
                                 grunt.log.error('Block "' + blockName + '" is not documented. ' +
                                 'The first direct child or block must be a comment');
@@ -67,7 +61,7 @@ module.exports = function (grunt) {
                                 return callback('Block undocumented');
                             }
 
-                            $block.removeAttr(blockAttrName);
+                            $block.removeAttr(CONSTS.ATTR.RULE_BLOCK);
                             blockIndex.description = blockDescription;
 
                             /**
@@ -76,38 +70,39 @@ module.exports = function (grunt) {
                              * @type {{}}
                              */
 
-                            var paramMap = {},
-                                $paramsReplaceList = $('[' + paramReplaceAttrName + ']').each(function () {
-                                    var $this = $(this),
-                                        paramName = $this.attr(paramReplaceAttrName);
-                                    paramMap[paramName] = paramMap[paramName] || {};
-                                    paramMap[paramName].rp = $this;
-                                }),
-                                $paramList = $('[' + paramAttrName + ']').each(function () {
-                                    var $this = $(this),
-                                        paramName = $this.attr(paramAttrName);
-                                    paramMap[paramName] = paramMap[paramName] || {};
-                                    paramMap[paramName].ip = $this;
-                                });
-                            for (var paramName in paramMap) {
-                                if (!paramMap.hasOwnProperty(paramName)) continue;
+                            var paramMap = {};
+                            $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
+                                var $this = $(this),
+                                    paramName = $this.attr(CONSTS.ATTR.RULE_PARAM_REPLACE);
+                                paramMap[paramName] = paramMap[paramName] || {};
+                                paramMap[paramName].rp = $this;
+                            });
+                            $('[' + CONSTS.ATTR.RULE_PARAM + '], [' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').each(function () {
+                                var $this = $(this),
+                                    paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
+                                paramMap[paramName] = paramMap[paramName] || {};
+                                paramMap[paramName].ip = $this;
+                            });
+                            Object.keys(paramMap).forEach(function (paramName) {
                                 var paramObject = paramMap[paramName],
                                     paramDescription = getFirstCommentValueFromEl(paramObject.ip) || getFirstCommentValueFromEl(paramObject.rp);
                                 if (!paramDescription) {
                                     grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
                                     'The first direct child or parameter must be a comment');
                                     taskSuccess = false;
-                                    return callback('Parameter undocumented');
+                                    return callback('Undocumented');
                                 }
                                 if (paramObject.ip) {
-                                    paramObject.ip.removeAttr(paramAttrName).text(paramReplacePlacaholder + CONSTS.PLACEHOLDER_DELIMITER + paramName);
+                                    paramObject.ip
+                                        .attr(CONSTS.ATTR.RULE_PARAM_INSERT, paramName)
+                                        .removeAttr(CONSTS.ATTR.RULE_PARAM);
                                 }
                                 blockIndex.params[paramName] = {
                                     description: paramDescription,
                                     insert: !!paramObject.ip,
                                     replace: !!paramObject.rp
                                 };
-                            }
+                            });
                             blockIndex.tpl = getUTplFromEl($block, $);
                             index[blockName] = blockIndex;
                             callback();

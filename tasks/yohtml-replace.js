@@ -2,18 +2,13 @@
 
 var jquery = require('jquery'),
     jsdom = require('jsdom'),
-    async = require('async'),
-    CONSTS = require('./lib/consts');
+    async = require('async');
 
 module.exports = function (grunt) {
 
     grunt.registerMultiTask('yohtml-replace', 'Yohtml preprocessor.', function () {
-        // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options({
-                nsPrefix: CONSTS.NS_PREFIX,
-                tagName: CONSTS.TAG_NAME
-            }),
-            paramReplaceAttrName = options.nsPrefix + CONSTS.TAG_DELIMETER + CONSTS.REPLACE + CONSTS.TAG_DELIMETER + CONSTS.PARAM,
+        var options = this.options({}),
+            CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,
             log = function (msgList) {
                 grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
@@ -23,8 +18,9 @@ module.exports = function (grunt) {
             taskSuccess = true,
             handleBlock = function($block, $body, $){
                 var params = {},
-                    blockName = $block.attr(CONSTS.BLOCK);
-                $block.removeAttr(CONSTS.BLOCK).children().each(function () {
+                    inject = {},
+                    blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
+                $block.removeAttr(CONSTS.YO_BLOCK).children().each(function () {
                     var $el = $(this),
                         paramName = $el.prop('tagName').toLowerCase();
                     params[paramName] = {
@@ -36,29 +32,54 @@ module.exports = function (grunt) {
                     grunt.log.error('Block "' + blockName + '" is not defined');
                     return taskSuccess = false;
                 }
+                var indexData = index[blockName];
+                if (!indexData) {
+                    // indexData not found. Let's try to match it accotding to yo-block-match
+                    Object.keys(index).some(function(name){
+                        if (index[name].match) {
+                            var matches = new RegExp(index[name].match, 'g').exec(blockName);
+                            if (matches && matches.length) {
+                                matches.forEach(function(val, i){
+                                    inject[i] = val;
+                                })
+                                indexData = index[name];
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                }
+                if (!indexData) {
+                    log('Block "' + blockName + '" is not defined');
+                    return taskSuccess = false;
+                }
+                var $newBlock = $(indexData.tpl);
+                
                 var $newBlock = $(index[blockName].tpl);
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
-                    if (!index[blockName].params[paramName]) {
+                    if (!indexData.params[paramName]) {
                         grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not defined');
                         return taskSuccess = false;
                     }
-                    if (params[paramName].$el.attr(CONSTS.REPLACE) !== undefined) {
+                    if (indexData.$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
-                        if (index[blockName].params[paramName].replace) {
-                            $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
+                        if (indexData.params[paramName].replace) {
+                            // find [yo-param-replace] and replace whole element
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[paramName].content);
                         } else {
                             grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
                             return taskSuccess = false;
                         }
                     } else {
                         // INSERT PARAMETER
-                        if (index[blockName].params[paramName].insert) {
+                        if (indexData.params[paramName].insert) {
+                            // @TODO replace by attr
                             $body.html(
                                 $body
                                     .html()
-                                    .replace(options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM + CONSTS.PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
+                                    .replace('yo::param::' + paramName.toLowerCase(), params[paramName].content)
                             );
                         } else {
                             grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
@@ -66,10 +87,17 @@ module.exports = function (grunt) {
                         }
                     }
                 }
+                // inject additionals. We use {{value}} to inject 'value' in rules
+                var content = $body.html();
+                Object.keys(inject).forEach(function(key){
+                    content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
+                })
+                $body.html(content);
                 return true;
             },
             getTheDeepestBlock = function($, $body){
-                var $blocks = $(options.tagName + '[block]');
+                var $blocks = $(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + ']');
+
                 if (!$blocks.length) {
                     return false;
                 } else if ($blocks.length === 1) {
