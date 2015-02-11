@@ -18,6 +18,7 @@ module.exports = function (grunt) {
             taskSuccess = true,
             handleBlock = function($block, $body, $){
                 var params = {},
+                    inject = {},
                     blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
                 $block.removeAttr(CONSTS.YO_BLOCK).children().each(function () {
                     var $el = $(this),
@@ -27,13 +28,34 @@ module.exports = function (grunt) {
                         $el: $el
                     };
                 });
-                var $newBlock = $(index[blockName].tpl);
+                var indexData = index[blockName];
+                if (!indexData) {
+                    // indexData not found. Let's try to match it accotding to yo-block-match
+                    Object.keys(index).some(function(name){
+                        if (index[name].match) {
+                            var matches = new RegExp(index[name].match, 'g').exec(blockName);
+                            if (matches && matches.length) {
+                                matches.forEach(function(val, i){
+                                    inject[i] = val;
+                                })
+                                indexData = index[name];
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                }
+                if (!indexData) {
+                    log('Block "' + blockName + '" is not defined');
+                    return taskSuccess = false;
+                }
+                var $newBlock = $(indexData.tpl);
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
                     if (params[paramName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
-                        if (index[blockName].params[paramName].replace) {
+                        if (indexData.params[paramName].replace) {
                             // find [yo-param-replace] and replace whole element
                             $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[paramName].content);
                         } else {
@@ -42,7 +64,7 @@ module.exports = function (grunt) {
                         }
                     } else {
                         // INSERT PARAMETER
-                        if (index[blockName].params[paramName].insert) {
+                        if (indexData.params[paramName].insert) {
                             // @TODO replace by attr
                             $body.html(
                                 $body
@@ -55,6 +77,12 @@ module.exports = function (grunt) {
                         }
                     }
                 }
+                // inject additionals. We use {{value}} to inject 'value' in rules
+                var content = $body.html();
+                Object.keys(inject).forEach(function(key){
+                    content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
+                })
+                $body.html(content);
                 return true;
             },
             getTheDeepestBlock = function($, $body){
@@ -90,7 +118,7 @@ module.exports = function (grunt) {
                             while (($block = getTheDeepestBlock($, $body))) {
                                 var result = handleBlock($block, $body, $);
                                 if (!result) {
-                                    filePathAsyncCB('Can\'t handle block');
+                                    return filePathAsyncCB('Can\'t handle block');
                                 }
                             }
                             grunt.file.write(file.dest + filepath, $body.html());

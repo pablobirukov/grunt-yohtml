@@ -1,14 +1,1 @@
-<div class="modal-base">
-    <div class="modal-header modal-base__header" yo-replace-param="header">
-        <ng-close-button ng-click="modalOptions.close('close')"></ng-close-button>
-        <h4 class="modal-base__header-title">
-            <div>Foo Bar!</div>
-        </h4>
-    </div>
-    <div class="modal-body modal-base__body">
-        <yohtml block="button">
-            <text>Hi button!</text>
-        </yohtml>
-        Content of modal box!
-    </div>
-</div>
+<div class="modal-base" yo-block-match="modal-(\d+)-(\d+)">        <div class="modal-header modal-base__header__modal-1-2__1" yo-param-replace="header">        <ng-close-button ng-click="modalOptions.close('close')"></ng-close-button>        <h4 class="modal-base__header-title" yo-param-insert="header">            <!-- Заголовок окна. Ждем текст-->        </h4>    </div>    <div class="modal-body modal-base__body" yo-param-insert="content">        <!-- Контент модалки. Ждем ХАШТИМЕЛЬ -->    </div></div>

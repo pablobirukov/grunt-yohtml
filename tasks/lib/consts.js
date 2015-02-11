@@ -25,8 +25,10 @@ module.exports = function (nsPrefix) {
             YO_PARAM:       nsPrefix + delimiters.ATTR + 'param',
             YO_REPLACE:     nsPrefix + delimiters.ATTR + 'replace',
             RULE_BLOCK:     nsPrefix + delimiters.ATTR + 'block',
+            RULE_BLOCK_MATCH:     nsPrefix + delimiters.ATTR + 'block' + delimiters.ATTR + 'match',
             RULE_PARAM:     nsPrefix + delimiters.ATTR + 'param',
-            RULE_PARAM_REPLACE:     nsPrefix + delimiters.ATTR + 'replace' + delimiters.ATTR + 'param'
+            RULE_PARAM_REPLACE:     nsPrefix + delimiters.ATTR + 'param' + delimiters.ATTR + 'replace',
+            RULE_PARAM_INSERT:     nsPrefix + delimiters.ATTR + 'param' + delimiters.ATTR + 'insert'
         },
         DELITIMER: delimiters
     }
