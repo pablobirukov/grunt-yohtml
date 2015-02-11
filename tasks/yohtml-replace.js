@@ -32,6 +32,10 @@ module.exports = function (grunt) {
                         $el: $el
                     };
                 });
+                if (!index[blockName]) {
+                    grunt.log.error('Block "' + blockName + '" is not defined');
+                    return taskSuccess = false;
+                }
                 var $newBlock = $(index[blockName].tpl);
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
@@ -41,7 +45,7 @@ module.exports = function (grunt) {
                         if (index[blockName].params[paramName].replace) {
                             $newBlock.find('[' + paramReplaceAttrName + ']').replaceWith(params[paramName].content);
                         } else {
-                            log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
+                            grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
                             return taskSuccess = false;
                         }
                     } else {
@@ -53,7 +57,7 @@ module.exports = function (grunt) {
                                     .replace(options.nsPrefix + CONSTS.PLACEHOLDER_DELIMITER + CONSTS.PARAM + CONSTS.PLACEHOLDER_DELIMITER + paramName.toLowerCase(), params[paramName].content)
                             );
                         } else {
-                            log('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
+                            grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
                         }
                     }
@@ -92,7 +96,7 @@ module.exports = function (grunt) {
                             while (($block = getTheDeepestBlock($, $body))) {
                                 var result = handleBlock($block, $body, $);
                                 if (!result) {
-                                    filePathAsyncCB('Can\'t handle block');
+                                    return filePathAsyncCB('Can\'t handle block');
                                 }
                             }
                             grunt.file.write(file.dest + filepath, $body.html());
@@ -102,7 +106,7 @@ module.exports = function (grunt) {
             }, filesAsyncCb);
         }, function(err){
             if (err) {
-                log('REMOVE log call: ', err);
+                //log('REMOVE log call: ', err);
             } else {
                 done(taskSuccess);
             }
