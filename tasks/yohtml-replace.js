@@ -28,10 +28,6 @@ module.exports = function (grunt) {
                         $el: $el
                     };
                 });
-                if (!index[blockName]) {
-                    grunt.log.error('Block "' + blockName + '" is not defined');
-                    return taskSuccess = false;
-                }
                 var indexData = index[blockName];
                 if (!indexData) {
                     // indexData not found. Let's try to match it accotding to yo-block-match
@@ -54,8 +50,6 @@ module.exports = function (grunt) {
                     return taskSuccess = false;
                 }
                 var $newBlock = $(indexData.tpl);
-                
-                var $newBlock = $(index[blockName].tpl);
                 $block.after($newBlock).remove();
                 for (var paramName in params) {
                     if (!params.hasOwnProperty(paramName)) continue;
@@ -63,7 +57,7 @@ module.exports = function (grunt) {
                         grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not defined');
                         return taskSuccess = false;
                     }
-                    if (indexData.$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
+                    if (params[paramName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
                         if (indexData.params[paramName].replace) {
                             // find [yo-param-replace] and replace whole element
