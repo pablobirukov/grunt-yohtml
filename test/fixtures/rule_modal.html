@@ -1,20 +1,26 @@
 <!-- Обязательно документировать каждый блок или параметр -->
 <div class="modal-base"
-     yo-block="modal"
-     yo-block-match="modal-(\d+)-(\d+)">
+     yo-block="modal">
     <!-- Блок для отображения модального окна -->
-    <div class="modal-header modal-base__header__{{1}}__{{2}}"
+
+    <div class="modal-header"
          yo-param-replace="header">
 
         <ng-close-button ng-click="modalOptions.close('close')"></ng-close-button>
         <h4 class="modal-base__header-title"
             yo-param="header">
-            <!-- Заголовок окна. Ждем текст-->
+            <!-- Заголовок окна. Ждем текст -->
         </h4>
 
     </div>
+
     <div class="modal-body modal-base__body"
          yo-param="content">
         <!-- Контент модалки. Ждем ХАШТИМЕЛЬ -->
     </div>
+
+    <div class="modal-footer modal-base__footer">
+
+    </div>
+
 </div>
