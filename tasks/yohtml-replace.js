@@ -87,7 +87,12 @@ module.exports = function (grunt) {
                 Object.keys(inject).forEach(function(key){
                     content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
                 });
-                $('yohtml[yo-block="' + blockName + '"]').replaceWith(content);
+                $(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + '="' + blockName + '"]').replaceWith(content);
+
+                // clear html from yo-attributes
+                $('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').removeAttr(CONSTS.ATTR.RULE_PARAM_INSERT);
+                $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').removeAttr(CONSTS.ATTR.RULE_PARAM_REPLACE);
+                $('[' + CONSTS.ATTR.RULE_BLOCK_MATCH + ']').removeAttr(CONSTS.ATTR.RULE_BLOCK_MATCH);
                 return true;
             },
             getTheDeepestBlock = function($, $body){

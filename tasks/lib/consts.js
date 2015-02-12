@@ -17,6 +17,7 @@ module.exports = function (nsPrefix) {
             MAIN: nsPrefix + 'html',
             BLOCK: ''
         },
+        PREFIX: nsPrefix,
         //PLACEHOLDER: {
         //
         //},
