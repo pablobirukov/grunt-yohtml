@@ -1,23 +1,36 @@
 <div class="register-card register-card_separated"
      yo-block="app-card">
-    <!--Стандартная карточка-->
-    <div class="register-card__header clearfix"
-         yo-param="header">
-        <!--Заголовок-->
+    <!-- Стандартная карточка -->
+
+    <div class="register-card__header">
+        <div class="row">
+            <div class="col-xs-8">
+                <div class="register-card__header-title"
+                     yo-param="header__title">
+                    <!-- Заголовок -->
+                </div>
+            </div>
+            <div class="col-xs-4"
+                 yo-param="header__button">
+                <!-- Кнопка -->
+            </div>
+        </div>
     </div>
 
-    <div class="register-card__body register-card_pad_light">
+    <div class="register-card__body register-card_pad_light"
+         yo-param="content">
+        <!-- Контент -->
         <div class="register-card__container_multi">
             <div class="row register-card__row_multi"
-                 yo-param="content">
-                <!--контент-->
+                 yo-param-insert="content">
+
             </div>
         </div>
     </div>
 
     <div class="register-card__footer"
          yo-param="footer">
-        <!--Футер-->
+        <!-- Футер -->
     </div>
 </div>
 
