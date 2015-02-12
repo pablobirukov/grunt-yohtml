@@ -49,44 +49,45 @@ module.exports = function (grunt) {
                     log('Block "' + blockName + '" is not defined');
                     return taskSuccess = false;
                 }
-                var $newBlock = $(indexData.tpl);
-                $block.after($newBlock).remove();
-                for (var paramName in params) {
-                    if (!params.hasOwnProperty(paramName)) continue;
-                    if (!indexData.params[paramName]) {
-                        grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not defined');
+                var $newBlock = $('<div>' + indexData.tpl + '</div>');
+                for (var pName in params) {
+                    if (!params.hasOwnProperty(pName)) continue;
+                    if (!indexData.params[pName]) {
+                        grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not defined');
                         return taskSuccess = false;
                     }
-                    if (params[paramName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
+                    if (params[pName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
-                        if (indexData.params[paramName].replace) {
+                        if (indexData.params[pName].replace) {
                             // find [yo-param-replace] and replace whole element
-                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[paramName].content);
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[pName].content);
                         } else {
-                            grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not replaceble');
+                            grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not replaceble');
                             return taskSuccess = false;
                         }
                     } else {
                         // INSERT PARAMETER
-                        if (indexData.params[paramName].insert) {
+                        if (indexData.params[pName].insert) {
                             // @TODO replace by attr
-                            $body.html(
-                                $body
-                                    .html()
-                                    .replace('yo::param::' + paramName.toLowerCase(), params[paramName].content)
-                            );
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
+                            //$body.html(
+                            //    $body
+                            //        .html()
+                            //        .replace('yo::param::' + paramName.toLowerCase(), params[paramName].content)
+                            //);
                         } else {
-                            grunt.log.error('Paratemer "' + paramName + '" in block "' + blockName  + '" is not insertable');
+                            grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
                         }
                     }
                 }
                 // inject additionals. We use {{value}} to inject 'value' in rules
-                var content = $body.html();
+                //var content = $('<div />').append($newBlock.eq(0).clone()).html();
+                var content = $newBlock.html();
                 Object.keys(inject).forEach(function(key){
                     content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
-                })
-                $body.html(content);
+                });
+                $('yohtml[yo-block="' + blockName + '"]').replaceWith(content);
                 return true;
             },
             getTheDeepestBlock = function($, $body){
