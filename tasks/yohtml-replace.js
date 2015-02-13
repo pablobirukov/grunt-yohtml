@@ -46,7 +46,7 @@ module.exports = function (grunt) {
                     })
                 }
                 if (!indexData) {
-                    log('Block "' + blockName + '" is not defined');
+                    grunt.log.error('Block "' + blockName + '" is not defined');
                     return taskSuccess = false;
                 }
                 var $newBlock = $('<div>' + indexData.tpl + '</div>');
@@ -68,13 +68,7 @@ module.exports = function (grunt) {
                     } else {
                         // INSERT PARAMETER
                         if (indexData.params[pName].insert) {
-                            // @TODO replace by attr
                             $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
-                            //$body.html(
-                            //    $body
-                            //        .html()
-                            //        .replace('yo::param::' + paramName.toLowerCase(), params[paramName].content)
-                            //);
                         } else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
