@@ -23,13 +23,13 @@ module.exports = function (grunt) {
             output: ['tmp1']
         },
 
-        'yohtml-index': {
+        yoindex: {
             files: {
                 src: 'test/fixtures/rule_*.html',
                 dest: 'test/tmp/'
             }
         },
-        'yohtml-replace': {
+        yoreplace: {
             files: {
                 src: 'tpl_*.html',
                 dest: 'tmp1/',
@@ -66,10 +66,10 @@ module.exports = function (grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('test', ['clean', 'yohtml-index', 'nodeunit']);
+    grunt.registerTask('test', ['clean', 'yoindex', 'nodeunit']);
 
-    grunt.registerTask('index', ['clean:tests', 'yohtml-index']);
-    grunt.registerTask('replace', ['clean:output', 'yohtml-replace']);
+    grunt.registerTask('index', ['clean:tests', 'yoindex']);
+    grunt.registerTask('replace', ['clean:output', 'yoreplace']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);

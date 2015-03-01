@@ -6,7 +6,7 @@ var jquery = require('jquery'),
 
 module.exports = function (grunt) {
 
-    grunt.registerMultiTask('yohtml-replace', 'Yohtml preprocessor.', function () {
+    grunt.registerMultiTask('yoreplace', 'Yohtml preprocessor.', function () {
         var options = this.options({}),
             CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,

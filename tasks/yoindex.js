@@ -21,7 +21,7 @@ module.exports = function (grunt) {
             return $("<div />").append($el.clone()).html().replace(/\n/g, '').trim();
         };
 
-    grunt.registerMultiTask('yohtml-index', 'Yohtml index file builder.', function () {
+    grunt.registerMultiTask('yoindex', 'Yohtml index file builder.', function () {
         var options = this.options({}),
             CONSTS = require('./lib/consts')(options.nsPrefix),
             files = this.filesSrc,
