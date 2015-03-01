@@ -31,7 +31,7 @@ module.exports = function (grunt) {
         },
         yoreplace: {
             files: {
-                src: 'tpl_*.html',
+                src: '**/tpl_*.html',
                 dest: 'tmp1/',
                 cwd: 'test/fixtures/',
                 expand: true
