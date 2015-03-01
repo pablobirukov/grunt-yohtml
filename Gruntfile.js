@@ -31,11 +31,10 @@ module.exports = function (grunt) {
         },
         'yohtml-replace': {
             files: {
-                src: 'fixtures/tpl_*.html',
+                src: 'tpl_*.html',
                 dest: 'tmp1/',
-                cwd: 'test/',
-                expand: true,
-                flatten: true
+                cwd: 'test/fixtures/',
+                expand: true
             },
             options: {
                 index: 'test/tmp/index.json'

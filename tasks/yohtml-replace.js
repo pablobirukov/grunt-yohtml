@@ -125,7 +125,7 @@ module.exports = function (grunt) {
                                     return filePathAsyncCB('Can\'t handle block');
                                 }
                             }
-                            grunt.file.write(file.dest + filepath, $body.html());
+                            grunt.file.write(file.dest, $body.html());
                         }
                         filePathAsyncCB();
                     });
