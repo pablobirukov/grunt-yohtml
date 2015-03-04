@@ -81,7 +81,8 @@ module.exports = function (grunt) {
                 Object.keys(inject).forEach(function(key){
                     content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
                 });
-                $(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + '="' + blockName + '"]').replaceWith(content);
+                getTheDeepestBlock($, $body).replaceWith(content);
+                //$(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + '="' + blockName + '"]').replaceWith(content);
 
                 // clear html from yo-attributes
                 $('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').removeAttr(CONSTS.ATTR.RULE_PARAM_INSERT);
