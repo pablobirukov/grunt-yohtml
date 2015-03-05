@@ -27,6 +27,9 @@ module.exports = function (grunt) {
             files: {
                 src: 'test/fixtures/rule_*.html',
                 dest: 'test/tmp/'
+            },
+            options: {
+                usages: 'test/fixtures/usages/'
             }
         },
         yoreplace: {
