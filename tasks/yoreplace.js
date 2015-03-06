@@ -37,7 +37,7 @@ module.exports = function (grunt) {
                             if (matches && matches.length) {
                                 matches.forEach(function(val, i){
                                     inject[i] = val;
-                                })
+                                });
                                 indexData = index[name];
                                 return true;
                             }
