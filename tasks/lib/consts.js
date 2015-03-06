@@ -9,7 +9,7 @@ module.exports = function (nsPrefix) {
         BLOCK: 'block',
         PARAM: 'param',
         REPLACE: 'replace',
-        TAG_DELIMETER: '-',
+        TAG_DELIMETER: delimiters.TAG,
         PLACEHOLDER_DELIMITER: '::',
         DEFAULT_PREFIX: 'yo',
         TAG_NAME: 'yohtml',

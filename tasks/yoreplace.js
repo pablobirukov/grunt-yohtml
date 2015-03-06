@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                 var params = {},
                     inject = {},
                     blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
-                $block.removeAttr(CONSTS.YO_BLOCK).children().each(function () {
+                $block.children().each(function () {
                     var $el = $(this),
                         paramName = $el.prop('tagName').toLowerCase();
                     params[paramName] = {
@@ -68,7 +68,13 @@ module.exports = function (grunt) {
                     } else {
                         // INSERT PARAMETER
                         if (indexData.params[pName].insert) {
-                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
+                            var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
+                            Array.prototype.forEach.call(params[pName].$el[0].attributes, function(attr){
+                                var attrName = attr.name;
+                                if (attrName.indexOf(CONSTS.DEFAULT_PREFIX + CONSTS.TAG_DELIMETER) !== 0) {
+                                    $el.attr(attrName, attr.value);
+                                }
+                            });
                         } else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
