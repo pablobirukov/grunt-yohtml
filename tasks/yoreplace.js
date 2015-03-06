@@ -16,6 +16,17 @@ module.exports = function (grunt) {
             index = grunt.file.readJSON(options.index),
             done = this.async(),
             taskSuccess = true,
+            enrichBlockWithAttributesOfAnotherBlock_booya_ = function($poorBlock, $richBlock){
+                /**
+                 * forward $richBlock attributes (of course except of "yo-*" attrs) to $poorBlock file
+                 */
+                Array.prototype.forEach.call($richBlock[0].attributes, function(attr){
+                    var attrName = attr.name;
+                    if (attrName.indexOf(CONSTS.DEFAULT_PREFIX + CONSTS.TAG_DELIMETER) !== 0) {
+                        $poorBlock.attr(attrName, attr.value);
+                    }
+                });
+            },
             handleBlock = function($block, $body, $){
                 var params = {},
                     inject = {},
@@ -50,6 +61,7 @@ module.exports = function (grunt) {
                     return taskSuccess = false;
                 }
                 var $newBlock = $('<div>' + indexData.tpl + '</div>');
+                enrichBlockWithAttributesOfAnotherBlock_booya_($newBlock.children(), $block);
                 for (var pName in params) {
                     if (!params.hasOwnProperty(pName)) continue;
                     if (!indexData.params[pName]) {
@@ -69,12 +81,7 @@ module.exports = function (grunt) {
                         // INSERT PARAMETER
                         if (indexData.params[pName].insert) {
                             var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
-                            Array.prototype.forEach.call(params[pName].$el[0].attributes, function(attr){
-                                var attrName = attr.name;
-                                if (attrName.indexOf(CONSTS.DEFAULT_PREFIX + CONSTS.TAG_DELIMETER) !== 0) {
-                                    $el.attr(attrName, attr.value);
-                                }
-                            });
+                            enrichBlockWithAttributesOfAnotherBlock_booya_($el, params[pName].$el);
                         } else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
