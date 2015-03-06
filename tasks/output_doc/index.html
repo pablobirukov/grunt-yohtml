@@ -5,6 +5,10 @@
     <link rel="stylesheet" type="text/css" href="assets/app.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script src="assets/jquery.js"></script>
+    <script src="assets/highlight.pack.js"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+
 </head>
 <body>
 <div class="app-wrapper">
@@ -47,9 +51,23 @@
 
             <% }} %>
             </ul>
-            <!--<div class="app-example__code">-->
-            <!--Code goes here-->
-            <!--</div>-->
+
+            <div class="app-example__usage">
+
+                <pre>
+                    <code class="html">
+                        <div>
+                            <ul>
+                                <li>xcv</li>
+                                <li>bcvb</li>
+                                <li>vbnbv</li>
+                                <li>mbmn</li>
+                                <li>mn,mn,</li>
+                            </ul>
+                        </div>
+                    </code>
+                </pre>
+            </div>
 
             <!--<div class="app-example__view">-->
             <!--Module view goes here-->
@@ -63,6 +81,16 @@
 <script src="index.jsonp" type="text/javascript"></script>
 <script src="assets/microtemplating.js"></script>
 <script src="assets/index.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+
 
 </body>
 </html>
