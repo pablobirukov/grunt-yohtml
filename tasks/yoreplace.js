@@ -31,17 +31,21 @@ module.exports = function (grunt) {
                 var params = {},
                     inject = {},
                     blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
+
                 $block.children().each(function () {
+
                     var $el = $(this),
                         paramName = $el.prop('tagName').toLowerCase();
+
                     params[paramName] = {
                         content: $el.html(),
                         $el: $el
                     };
+
                 });
                 var indexData = index[blockName];
                 if (!indexData) {
-                    // indexData not found. Let's try to match it accotding to yo-block-match
+                    // indexData not found. Let's try to match it according to yo-block-match
                     Object.keys(index).some(function(name){
                         if (index[name].match) {
                             var matches = new RegExp(index[name].match, 'g').exec(blockName);
@@ -68,21 +72,31 @@ module.exports = function (grunt) {
                         grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not defined');
                         return taskSuccess = false;
                     }
+
+
+
+
                     if (params[pName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
-                        if (indexData.params[pName].replace) {
+
+                        if (indexData.params[pName].replace && params[pName].content !== '') {
                             // find [yo-param-replace] and replace whole element
                             $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').replaceWith(params[pName].content);
+                        } else if (params[pName].content == '') {
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').remove();
                         } else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not replaceble');
                             return taskSuccess = false;
                         }
                     } else {
                         // INSERT PARAMETER
-                        if (indexData.params[pName].insert) {
+                        if (indexData.params[pName].insert && params[pName].content !== '') {
                             var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
                             enrichBlockWithAttributesOfAnotherBlock_booya_($el, params[pName].$el);
-                        } else {
+                        } else if (params[pName].content == '') {
+                            var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').remove();
+                        }
+                        else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');
                             return taskSuccess = false;
                         }
