@@ -105,6 +105,7 @@ module.exports = function (grunt) {
                                 paramMap[paramName] = paramMap[paramName] || {};
                                 paramMap[paramName].ip = $this;
                             });
+
                             Object.keys(paramMap).forEach(function (paramName) {
                                 var paramObject = paramMap[paramName],
                                     paramDescription = getFirstCommentValueFromEl(paramObject.ip) || getFirstCommentValueFromEl(paramObject.rp);

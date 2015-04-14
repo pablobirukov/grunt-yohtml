@@ -50,6 +50,12 @@
             <div class="app-example__description">
                 <%=item.description%>
             </div>
+            <% if (item.match) { %>
+            <div class="app-example__match">
+                 <div class="app-example__tag app-example__tag_true">yo-block-match</div>
+                 <b><%=item.match%></b>
+            </div>
+            <% } %>
         </div>
         <div class="app-example__body">
             <ul class="app-params">

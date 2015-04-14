@@ -12,15 +12,8 @@
 
         Контент карточки.
 
-        <yohtml yo-block="app-card__col-1-light">
-
-            Обратить внимание на класс.
-            Используется регулярное выражение app-card__col-1-light
-            Для добавления регулярного выражения в наименование класса используется аттрибут yo-block-match
-            Пример этого матча в правиле блока:
-            yo-block-match="app-card__col-(\d+)-(light|dark)"
-            Тогда как сам блок обладает таким классом:
-            class="col-xs-{{1}}  register-card__col register-card__col_multi register-card_pad_{{2}}
+        <yohtml yo-block="app-card__col"
+                yo-block-match="app-card__col-1-light">
 
             <content>
                 Контент колонки
@@ -28,7 +21,8 @@
 
         </yohtml>
 
-        <yohtml yo-block="app-card__col-4-dark">
+        <yohtml yo-block="app-card__col"
+                yo-block-match="app-card__col-4-dark">
 
             <content>
                 Контент колонки
@@ -36,7 +30,8 @@
 
         </yohtml>
 
-        <yohtml yo-block="app-card__col-4-light">
+        <yohtml yo-block="app-card__col"
+                yo-block-match="app-card__col-4-light">
 
             <content>
                 Контент колонки

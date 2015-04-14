@@ -29,8 +29,9 @@ module.exports = function (grunt) {
             },
             handleBlock = function($block, $body, $){
                 var params = {},
-                    inject = {},
-                    blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
+                    injects = {},
+                    blockName = $block.attr(CONSTS.ATTR.YO_BLOCK),
+                    blockMatch = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH);
 
                 $block.children().each(function () {
 
@@ -44,22 +45,22 @@ module.exports = function (grunt) {
 
                 });
                 var indexData = index[blockName];
-                if (!indexData) {
+                //if (!indexData) {
                     // indexData not found. Let's try to match it according to yo-block-match
                     Object.keys(index).some(function(name){
                         if (index[name].match) {
-                            var matches = new RegExp(index[name].match, 'g').exec(blockName);
+                            var matches = new RegExp(index[name].match, 'g').exec(blockMatch);
                             if (matches && matches.length) {
                                 matches.forEach(function(val, i){
-                                    inject[i] = val;
+                                    injects[i] = val;
                                 });
                                 indexData = index[name];
                                 return true;
                             }
                         }
                         return false;
-                    })
-                }
+                    });
+                //}
                 if (!indexData) {
                     grunt.log.error('Block "' + blockName + '" is not defined');
                     return taskSuccess = false;
@@ -101,8 +102,8 @@ module.exports = function (grunt) {
                 // inject additionals. We use {{value}} to inject 'value' in rules
                 //var content = $('<div />').append($newBlock.eq(0).clone()).html();
                 var content = $newBlock.html();
-                Object.keys(inject).forEach(function(key){
-                    content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), inject[key]);
+                Object.keys(injects).forEach(function(key){
+                    content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), injects[key]);
                 });
                 getTheDeepestBlock($, $body).replaceWith(content);
                 //$(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + '="' + blockName + '"]').replaceWith(content);
