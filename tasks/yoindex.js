@@ -144,7 +144,7 @@ module.exports = function (grunt) {
                 if (err) {
                     log(err);
                 } else {
-                    ['index.html', 'assets/app.css', 'assets/index.js', 'assets/jquery.js', 'assets/microtemplating.js', 'assets/highlight.pack.js']
+                    ['index.html', 'assets/app.css', 'assets/index.js', 'assets/jquery.js', 'assets/microtemplating.js', 'assets/highlight.pack.js', 'assets/escape.js']
                         .forEach(function (filepath) {
                             grunt.file.copy('./tasks/output_doc/' + filepath, file.dest + filepath)
                         });

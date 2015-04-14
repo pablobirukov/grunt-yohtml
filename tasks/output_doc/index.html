@@ -2,19 +2,33 @@
 <html>
 <head>
     <title></title>
-    <link rel="stylesheet" type="text/css" href="assets/app.css">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet"
+          type="text/css"
+          href="assets/app.css">
+    <meta http-equiv="Content-Type"
+          content="text/html; charset=utf-8">
     <script src="assets/jquery.js"></script>
-    <script src="assets/highlight.pack.js"></script>
+    <script src="assets/escape.js"></script>
 
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
-
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/default.min.css">
+    <script>
+        $(document).ready(function () {
+            $('code').each(function (i, block) {
+                this.innerHTML = escapeHtml(this.innerHTML);
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
 </head>
 <body>
 <div class="app-wrapper">
     <div class="app-container">
         <div class="app-search">
-            <input type="text" class="app-search__control" id="search"/>
+            <input type="text"
+                   class="app-search__control"
+                   id="search"/>
         </div>
     </div>
     <div class="app-container">
@@ -24,62 +38,51 @@
     </div>
 </div>
 
-
-<script type="text/html" id="index_tmpl">
+<script type="text/html"
+        id="index_tmpl">
     <% for (var itemName in index) { %>
     <% if (index.hasOwnProperty(itemName)) { var item = index[itemName]; %>
-    <div class="app-example" id="<%= itemName %>">
+    <div class="app-example"
+         id="<%= itemName %>">
         <div class="app-example__header">
             <h1 class="app-example__title"><%=itemName%></h1>
-                <div class="app-example__description">
-                    <%=item.description%>
-                </div>
+
+            <div class="app-example__description">
+                <%=item.description%>
+            </div>
         </div>
         <div class="app-example__body">
             <ul class="app-params">
-            <% for (var paramName in item.params) { if (item.params.hasOwnProperty(paramName)) { var paramItem = item.params[paramName]; %>
+                <% for (var paramName in item.params) { if (item.params.hasOwnProperty(paramName)) { var paramItem = item.params[paramName]; %>
                 <li class="params__param">
                     <h1 class="app-example__title app-example__title_param"><%=paramName%></h1>
-                        <div class="app-example__description app-example__description_param">
-                            <%= paramItem.description %>
-                        </div>
-                        <div class="app-example__tags">
-                            <div class="app-example__tag app-example__tag_<%= paramItem.insert ? 'true' : 'false' %>">Insert</div>
-                            <div  class="app-example__tag app-example__tag_<%= paramItem.replace ? 'true' : 'false' %>">Replace</div>
-                        </div>
+
+                    <div class="app-example__description app-example__description_param">
+                        <%= paramItem.description %>
+                    </div>
+                    <div class="app-example__tags">
+                        <div class="app-example__tag app-example__tag_<%= paramItem.insert ? 'true' : 'false' %>">Insert</div>
+                        <div class="app-example__tag app-example__tag_<%= paramItem.replace ? 'true' : 'false' %>">Replace</div>
+                    </div>
                 </li>
-            <% }} %>
+                <% }} %>
             </ul>
             <div class="app-example__usage">
-                <pre>
-                    <code class="html">
-                        <%= item.usage %>
-                    </code>
-                </pre>
-            </div>
+<pre><code class="xml"><%= item.usage %></code></pre></div>
 
             <!--<div class="app-example__view">-->
             <!--Module view goes here-->
             <!--</div>-->
-                </div>
-            </div>
-        <% } %>
+        </div>
+    </div>
+    <% } %>
     <% } %>
 </script>
 
-<script src="index.jsonp" type="text/javascript"></script>
+<script src="index.jsonp"
+        type="text/javascript"></script>
 <script src="assets/microtemplating.js"></script>
 <script src="assets/index.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $('pre code').each(function(i, block) {
-            hljs.highlightBlock(block);
-        });
-    });
-</script>
-
-
 
 </body>
 </html>

@@ -72,10 +72,6 @@ module.exports = function (grunt) {
                         grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not defined');
                         return taskSuccess = false;
                     }
-
-
-
-
                     if (params[pName].$el.attr(CONSTS.ATTR.YO_REPLACE) !== undefined) {
                         // REPLACE PARAMETER
 
@@ -94,7 +90,7 @@ module.exports = function (grunt) {
                             var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').html(params[pName].content);
                             enrichBlockWithAttributesOfAnotherBlock_booya_($el, params[pName].$el);
                         } else if (params[pName].content == '') {
-                            var $el = $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').remove();
+                            $newBlock.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + '="' + pName + '"]').remove();
                         }
                         else {
                             grunt.log.error('Paratemer "' + pName + '" in block "' + blockName  + '" is not insertable');

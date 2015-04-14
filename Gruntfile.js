@@ -51,7 +51,7 @@ module.exports = function (grunt) {
 
         watch: {
             scripts: {
-                files: ['test/fixtures/*.tpl.html', 'test/fixtures/*.html'],
+                files: ['test/fixtures/*.tpl.html', 'test/fixtures/*.html', 'tasks/output_doc/index.html'],
                 tasks: ['index', 'replace']
             }
         }

@@ -1,0 +1,30 @@
+В этом блоке используется регулярное выражение.
+Задается с помощью аттрибута yo-block-match.
+Пример работы из этого блока:
+yo-block-match="app-card__col-(\d+)-(light|dark)"
+Тогда как сам блок обладает таким классом:
+class="col-xs-{{1}}  register-card__col register-card__col_multi register-card_pad_{{2}}
+
+Варианты вызова колонки.
+
+<yohtml yo-block="app-card__col-2-dark">
+    Колонка с темным бекграундом
+
+    <content>
+        Контент колонки
+    </content>
+
+</yohtml>
+
+
+<yohtml yo-block="app-card__col-3-light">
+
+    Колонка с темным бекграундом
+
+    <content>
+
+        Контент колонки
+
+    </content>
+
+</yohtml>
