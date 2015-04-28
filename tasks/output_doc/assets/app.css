@@ -79,6 +79,22 @@ li {
     height: 100%;
 }
 
+.app-example__params {
+    display: inline-block;
+    width: 35%;
+    vertical-align: top;
+}
+
+.app-example__params-item {
+
+    margin: 0 0 10px 0;
+}
+
+.app-example__usage {
+    display: inline-block;
+    width: 64%;
+    vertical-align: top;
+}
 .app-example__description {
     font:400 14px "Arial";
     color: #000;
@@ -126,12 +142,6 @@ li {
 }
 
 
-.app-params {}
-
-.app-params__param {
-    
-    margin: 0 0 10px 0;
-}
 
 .occurrence-name .app-example__header > .app-example__title {
     color: red;

@@ -1,7 +1,7 @@
 <yohtml yo-block="app-card">
 
     <header__title>
-        sfsdfdsfsdfsfdsf
+        Заголовок блока, все как в проекте. УРА!!!
     </header__title>
 
     <header__button>
@@ -11,11 +11,141 @@
 
     <content>
 
+
+
         <yohtml yo-block="app-card__col"
                 yo-block-match="app-card__col-3-dark">
             <content>
-                <div class="register-card__pic">
+                <table class="table  register-card__table register-card__table_stripped">
+                    <tbody>
+                    <tr>
+                        <td>Состояние:</td>
+                        <td><span class="register-card__val">исправный</span></td>
+                    </tr>
+                    <tr>
+                        <td>Общий износ:</td>
+                        <td><span class="register-card__val">29%</span></td>
+                    </tr>
+                    <tr>
+                        <td>Количество ЛС:</td>
+                        <td><span class="register-card__val">100</span></td>
+                    </tr>
+                    <tr>
+                        <td>Количество помещений (жилых/нежилых):</td>
+                        <td><span class="register-card__val">100/-</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </content>
+        </yohtml>
+
+        <yohtml yo-block="app-card__col"
+                yo-block-match="app-card__col-3-light">
+            <content>
+                <table class="table  register-card__table register-card__table_pad_dark register-card__table_stripped">
+                    <tbody>
+                    <tr>
+                        <td>Год постройки:</td>
+                        <td><span class="register-card__val">1994</span></td>
+                    </tr>
+                    <tr>
+                        <td>Год ввода в эксплуатацию:</td>
+                        <td><span class="register-card__val">1995</span></td>
+                    </tr>
+                    <tr>
+                        <td>Тип проекта здания:</td>
+                        <td><span class="register-card__val">панельный</span></td>
+                    </tr>
+                    <tr>
+                        <td>Количество этажей (наибольшее/наименьшее):</td>
+                        <td><span class="register-card__val">12/-</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </content>
+        </yohtml>
+
+        <yohtml yo-block="app-card__col"
+                yo-block-match="app-card__col-6-dark">
+            <content>
+                <div class="register-card__section register-card__section_standalone">
+                    <div class="register-card__section-header">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <a href="javascript:void(0);" class="register-card__section-header-link cnt-link">Приборы учета</a>
+                            </div>
+                            <div class="col-sm-6 text-right">
+                                <a href="javascript:void(0);" class="btn btn-action">Внести показания</a>
+                            </div>
+                        </div><!-- /end .row -->
+                    </div><!-- /end .register-card__section-header -->
+
+                    <div class="register-card__section-body">
+
+                        <div class="row">
+                            <div class="col-xs-4">
+
+                                <table class="table register-card__table">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2">Водоснабжение</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Холодная вода:</td>
+                                        <td><span class="register-card__val">443 м3</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Горячая вода:</td>
+                                        <td><span class="register-card__val">8 м3</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div><!-- /end .col-... -->
+                            <div class="col-xs-4">
+
+                                <table class="table register-card__table">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2">Электроэнергия</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Т1 (дневной)</td>
+                                        <td><span class="register-card__val">250 кВт</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Т2 (ночной)</td>
+                                        <td><span class="register-card__val">340 кВт</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div><!-- /end .col-... -->
+                            <div class="col-xs-4">
+
+                                <table class="table register-card__table">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2">Газоснабжение</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Газ</td>
+                                        <td><span class="register-card__val">8 м3</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div><!-- /end .col-... -->
+                        </div><!-- /end .row -->
+                    </div><!-- /end .register-card__section-body -->
                 </div>
+
             </content>
         </yohtml>
 

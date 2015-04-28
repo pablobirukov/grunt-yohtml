@@ -1,1 +1,18 @@
-{"form-group":{"params":{"label":{"description":"Label контрола. Текст"},"control":{"description":"Контент контрола. HTML"}},"description":"Элемент формы. В сетке 4-8","tpl":"<div class=\"form-group\" bt-block=\"form-group\">        <label for=\"\" class=\"col-sm-4 control-label\">bt::param::label</label>    <div class=\"col-sm-8\">bt::param::control</div></div>"},"modal":{"params":{"header":{"description":"Заголовок окна. Ждем текст"},"content":{"description":"Контент модалки. Ждем HTML"}},"description":"Блок для отображения модального окна","tpl":"<div class=\"modal-base\" bt-block=\"modal\">        <div class=\"modal-header modal-base__header\">        <ng-close-button ng-click=\"modalOptions.close('close')\"></ng-close-button>        <h4 class=\"modal-base__header-title\">bt::param::header</h4>    </div>    <div class=\"modal-body modal-base__body\">bt::param::content</div></div>"}}
+{
+  "form-group": {
+    "params": {
+      "label": {"description": "Label контрола. Текст"},
+      "control": {"description": "Контент контрола. HTML"}
+    },
+    "description": "Элемент формы. В сетке 4-8",
+    "tpl": "<div class=\"form-group\" bt-block=\"form-group\">        <label for=\"\" class=\"col-sm-4 control-label\">bt::param::label</label>    <div class=\"col-sm-8\">bt::param::control</div></div>"
+  },
+  "modal": {
+    "params": {
+      "header": {"description": "Заголовок окна. Ждем текст"},
+      "content": {"description": "Контент модалки. Ждем HTML"}
+    },
+    "description": "Блок для отображения модального окна",
+    "tpl": "<div class=\"modal-base\" bt-block=\"modal\">        <div class=\"modal-header modal-base__header\">        <ng-close-button ng-click=\"modalOptions.close('close')\"></ng-close-button>        <h4 class=\"modal-base__header-title\">bt::param::header</h4>    </div>    <div class=\"modal-body modal-base__body\">bt::param::content</div></div>"
+  }
+}

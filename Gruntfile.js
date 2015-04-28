@@ -40,7 +40,8 @@ module.exports = function (grunt) {
                 expand: true
             },
             options: {
-                index: 'test/tmp/index.json'
+                index: 'test/tmp/index.json',
+                indexData: 'test/tmp/index.jsonp'
             }
         },
 
@@ -73,6 +74,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('index', ['clean:tests', 'yoindex']);
     grunt.registerTask('replace', ['clean:output', 'yoreplace']);
+
+    grunt.registerTask('build', ['index', 'replace']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);
