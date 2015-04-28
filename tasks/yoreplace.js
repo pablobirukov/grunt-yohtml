@@ -151,8 +151,7 @@ module.exports = function (grunt) {
               }
 
               index[blockName].view = $body.html();
-
-              //View file saving
+              //View tpl writing
               grunt.file.write(options.index, JSON.stringify(index), {encoding: 'utf8'});
               grunt.file.write(options.indexData, 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
 
