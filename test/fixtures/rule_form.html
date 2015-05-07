@@ -1,16 +1,27 @@
 <!-- Обязательно документировать каждый блок или параметр -->
-<div class="form-base"
-     yo-block="form">
+<div class="form-base form-base_size_{{1}}"
+     yo-block="app-form"
+     yo-block-match="app-form_size-(sm|normal)_bg-(dark|light)">
     <!-- Стандартная форма -->
 
-    <div class="form-base__header"
+    <div class="form-base__header form-base__header_pad_{{2}}"
          yo-param="header">
         <!-- Заголовок формы -->
+            <div class="form-base__header-title">
+                <div class="mamaha" yo-param-insert="header"></div>
+            </div>
     </div>
 
-    <div class="form-base__body"
-         yo-param="content">
-        <!-- Тело формы. Ожидаем HTML -->
+    <div class="form-base__body form-base_pad_{{2}}">
+        <div class="form-horizontal"
+             yo-param="content">
+            <!-- Тело формы. Ожидаем HTML -->
+            <div>
+                <div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="form-base__footer"

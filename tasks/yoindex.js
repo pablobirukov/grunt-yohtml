@@ -1,17 +1,18 @@
 'use strict';
 module.exports = function (grunt) {
 
-  var jquery = require('jquery'),
-    jsdom = require('jsdom'),
+  var jsdom = require('jsdom'),
     async = require('async'),
-    getFirstCommentValueFromEl = function ($el) {
+    getFirstCommentValueFromEl = function ($el, $) {
       var firstComment = $el ? $el.contents().filter(function () {
         return this.nodeType === 8;
       }).get(0) : false;
       if (!firstComment) {
         return false;
       } else {
-        return firstComment.nodeValue ? firstComment.nodeValue.trim() : '';
+        var firstCommentVal = firstComment.nodeValue ? firstComment.nodeValue.trim() : '';
+        $(firstComment).remove();
+        return firstCommentVal;
       }
     },
     getUTplFromEl = function ($el, $) {
@@ -23,8 +24,11 @@ module.exports = function (grunt) {
 
   grunt.registerMultiTask('yoindex', 'Yohtml index file builder.', function () {
     var options = this.options({}),
+      jquery = options['jquery'] ? options['jquery'] : '../node_modules/jquery/dist/jquery.js',
       CONSTS = require('./lib/consts')(options.nsPrefix),
       files = this.filesSrc,
+      externalCss = options['externalCss'] ? options['externalCss'] : null,
+
       successCallback = function (msg) {
         grunt.log.writeln(msg);
       },
@@ -38,7 +42,7 @@ module.exports = function (grunt) {
       views = {},
       handleUsageHtml = function (usage) {
         jsdom.env(usage,
-          ['./lib/jquery.js'],
+          [jquery],
           function (errors, window) {
             if (errors) {
               errorCallback(errors);
@@ -56,15 +60,16 @@ module.exports = function (grunt) {
       done = this.async(),
       taskSuccess = true;
 
-    grunt.file.recurse(options.usages, function (abspath, rootdir, subdir, filename) {
-      return handleUsageHtml(grunt.file.read(abspath));
-    });
+    if(options.usages){
+      grunt.file.recurse(options.usages, function (abspath, rootdir, subdir, filename) {
+        return handleUsageHtml(grunt.file.read(abspath));
+      });
+    }
+
     this.files.forEach(function (file) {
-
       async.each(file.src, function (filepath, callback) {
-
         jsdom.env(grunt.file.read(filepath, {encoding: 'utf8'}),
-          ['./lib/jquery.js'],
+          [jquery],
           function (errors, window) {
             if (errors) {
               errorCallback(errors);
@@ -73,7 +78,7 @@ module.exports = function (grunt) {
                 $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
                 blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
                 blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
-                blockDescription = getFirstCommentValueFromEl($block),
+                blockDescription = getFirstCommentValueFromEl($block, $),
                 blockIndex = {params: {}, match: blockMatchExpression};
 
               if (!blockDescription) {
@@ -93,36 +98,36 @@ module.exports = function (grunt) {
                */
 
               var paramMap = {};
+
+              $('[' + CONSTS.ATTR.RULE_PARAM + ']').each(function () {
+                var $this = $(this),
+                  paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
+                paramMap[paramName] = paramMap[paramName] || {};
+                paramMap[paramName].param = $this;
+                //CHECK COMPLEX INSERT
+                paramMap[paramName].ip = $this.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').html() !== undefined;
+              });
+
               $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
                 var $this = $(this),
                   paramName = $this.attr(CONSTS.ATTR.RULE_PARAM_REPLACE);
                 paramMap[paramName] = paramMap[paramName] || {};
                 paramMap[paramName].rp = $this;
               });
-              $('[' + CONSTS.ATTR.RULE_PARAM + '], [' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').each(function () {
-                var $this = $(this),
-                  paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
-                paramMap[paramName] = paramMap[paramName] || {};
-                paramMap[paramName].ip = $this;
-              });
 
-              Object.keys(paramMap).forEach(function (paramName) {
+                Object.keys(paramMap).forEach(function (paramName) {
                 var paramObject = paramMap[paramName],
-                  paramDescription = getFirstCommentValueFromEl(paramObject.ip) || getFirstCommentValueFromEl(paramObject.rp);
+                  paramDescription = getFirstCommentValueFromEl(paramObject.param, $) || getFirstCommentValueFromEl(paramObject.rp, $);
                 if (!paramDescription) {
                   grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
                   'The first direct child or parameter must be a comment');
                   taskSuccess = false;
                   return callback('Undocumented');
                 }
-                if (paramObject.ip) {
-                  paramObject.ip
-                    .attr(CONSTS.ATTR.RULE_PARAM_INSERT, paramName)
-                    .removeAttr(CONSTS.ATTR.RULE_PARAM);
-                }
+
                 blockIndex.params[paramName] = {
                   description: paramDescription,
-                  insert: !!paramObject.ip,
+                  insert: paramObject.ip,
                   replace: !!paramObject.rp
                 };
               });
@@ -145,12 +150,34 @@ module.exports = function (grunt) {
         if (err) {
           log(err);
         } else {
-          ['index.html', 'assets/app.css', 'assets/project-styles.css', 'assets/index.js', 'assets/jquery.js', 'assets/microtemplating.js', 'assets/highlight.pack.js', 'assets/escape.js']
+          [
+            'index.html',
+            'assets/app.css',
+            'assets/index.js',
+            'assets/jquery.js',
+            'assets/microtemplating.js',
+            'assets/highlight.pack.js',
+            'assets/escape.js'
+          ]
             .forEach(function (filepath) {
-              grunt.file.copy('./tasks/output_doc/' + filepath, file.dest + filepath)
+              grunt.file.copy('./tasks/output_doc/' + filepath, file.dest + filepath);
             });
-          grunt.file.write(file.dest + 'index.json', JSON.stringify(index), {encoding: 'utf8'});
-          grunt.file.write(file.dest + 'index.jsonp', 'var INDEX = ' + JSON.stringify(index), {encoding: 'utf8'});
+
+          if (!!externalCss){
+            var externalCssFile = 'external.css';
+            grunt.file.copy(externalCss, file.dest + 'assets/' + externalCssFile);
+          }
+
+          grunt.file.write(
+            file.dest + 'index.json',
+            JSON.stringify(index),
+            {encoding: 'utf8'}
+          );
+          grunt.file.write(
+            file.dest + 'index.jsonp',
+            'var INDEX = ' + JSON.stringify(index),
+            {encoding: 'utf8'}
+          );
         }
         done(taskSuccess);
       });
