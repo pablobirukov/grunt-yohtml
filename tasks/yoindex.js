@@ -10,9 +10,7 @@ module.exports = function (grunt) {
       if (!firstComment) {
         return false;
       } else {
-        var firstCommentVal = firstComment.nodeValue ? firstComment.nodeValue.trim() : '';
-        $(firstComment).remove();
-        return firstCommentVal;
+        return firstComment.nodeValue ? firstComment.nodeValue.trim() : '';
       }
     },
     getUTplFromEl = function ($el, $) {
@@ -78,7 +76,7 @@ module.exports = function (grunt) {
                 $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
                 blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
                 blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
-                blockDescription = getFirstCommentValueFromEl($block, $),
+                blockDescription = getFirstCommentValueFromEl($block),
                 blockIndex = {params: {}, match: blockMatchExpression};
 
               if (!blockDescription) {
@@ -117,7 +115,7 @@ module.exports = function (grunt) {
 
                 Object.keys(paramMap).forEach(function (paramName) {
                 var paramObject = paramMap[paramName],
-                  paramDescription = getFirstCommentValueFromEl(paramObject.param, $) || getFirstCommentValueFromEl(paramObject.rp, $);
+                  paramDescription = getFirstCommentValueFromEl(paramObject.param) || getFirstCommentValueFromEl(paramObject.rp);
                 if (!paramDescription) {
                   grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
                   'The first direct child or parameter must be a comment');
