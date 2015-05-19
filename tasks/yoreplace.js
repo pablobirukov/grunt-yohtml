@@ -17,24 +17,26 @@ module.exports = function (grunt) {
       done = this.async(),
       taskSuccess = true,
       mergeAttrs = function (attr1, attr2) {
-        return attr1 + ' ' + attr2;
+        return attr1 + " " + attr2;
       },
       enrichBlockWithAttributesOfAnotherBlock_booya_ = function ($poorBlock, $richBlock) {
         /**
          * forward $richBlock attributes (of course except of "yo-*" attrs) to $poorBlock file
          */
-        Array.prototype.forEach.call($richBlock[0].attribs, function (attr) {
-          var attrName = attr.name;
-          if (attrName.indexOf(CONSTS.DEFAULT_PREFIX + CONSTS.TAG_DELIMETER) !== 0) {
-
-            if ($poorBlock.attr(attrName)) {
-              var mergedAttr = mergeAttrs($poorBlock.attr(attrName), attr.value);
-              $poorBlock.attr(attrName, mergedAttr);
-            } else {
-              $poorBlock.attr(attrName, attr.value);
+        var richAttrs = $richBlock[0].attribs;
+        for (var attrName in richAttrs) {
+          if (richAttrs.hasOwnProperty(attrName)) {
+            if (attrName.indexOf(CONSTS.DEFAULT_PREFIX + CONSTS.TAG_DELIMETER) !== 0) {
+              var attrVal = richAttrs[attrName];
+              if ($poorBlock.attr(attrName)) {
+                var mergedAttr = mergeAttrs($poorBlock.attr(attrName), attrVal);
+                $poorBlock.attr(attrName, mergedAttr);
+              } else {
+                $poorBlock.attr(attrName, attrVal);
+              }
             }
           }
-        });
+        }
       },
 
       getMatches = function (pattern, blockMatch) {
@@ -47,7 +49,18 @@ module.exports = function (grunt) {
         });
         return injects
       },
-      handleBlock = function ($block, $) {
+
+      doReplace = function (indexData, param, content) {
+
+      },
+      hasReplace = function (param) {
+        return param.$el.attr(CONSTS.ATTR.RULE_PARAM_REPLACE) ? true : false
+      },
+      handleParams = function (indexData, params) {
+
+      },
+
+      handleBlock = function ($block, $body, $) {
         var params = {},
           injects = {},
           blockName = $block.attr(CONSTS.ATTR.YO_BLOCK),
@@ -56,7 +69,6 @@ module.exports = function (grunt) {
         $block.children().each(function () {
           var $el = $(this),
             paramName = this.name;
-
           params[paramName] = {
             content: $el.html(),
             $el: $el
@@ -125,13 +137,14 @@ module.exports = function (grunt) {
             }
           }
         }
+
         var content = $newBlock.html();
         // inject additionals. We use {{value}} to inject 'value' in rules
         Object.keys(injects).forEach(function (key) {
           content = content.replace(new RegExp('{{\\s*' + key + '\\s*}}', 'gmi'), injects[key]);
         });
-        getTheDeepestBlock($).replaceWith(cleanYoMatchAttr($(content)));
-
+        content = cleanYoMatchAttr($(content));
+        getTheDeepestBlock($, $body).replaceWith(content);
         // clear html from yo-attributes
         $('[' + CONSTS.ATTR.YO_PARAM + ']').removeAttr(CONSTS.ATTR.YO_PARAM);
         $('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').removeAttr(CONSTS.ATTR.RULE_PARAM_INSERT);
@@ -141,7 +154,7 @@ module.exports = function (grunt) {
       cleanYoMatchAttr = function ($node) {
         return $node.removeAttr(CONSTS.ATTR.RULE_BLOCK_MATCH);
       },
-      getTheDeepestBlock = function ($) {
+      getTheDeepestBlock = function ($, $body) {
         var $blocks = $(CONSTS.TAG.MAIN + '[' + CONSTS.ATTR.YO_BLOCK + ']');
         if (!$blocks.length) {
           return false;
@@ -149,12 +162,11 @@ module.exports = function (grunt) {
           return $blocks.eq(0);
         } else {
           return Array.prototype.reduce.call($blocks, function (el1, el2) {
-
             var $el1 = $(el1),
               $el2 = $(el2);
-            $el1('body').data('nestingLevel', $el1.data('nestingLevel') || $el1.parentsUntil($).length);
-            $el2('body').data('nestingLevel', $el2.data('nestingLevel') || $el2.parentsUntil($).length);
-            return $el2.data('nestingLevel') > $el2.data('nestingLevel') ? $el2 : $el2;
+            $el1.data('nestingLevel', $el1.data('nestingLevel') || $el1.parentsUntil($body).length);
+            $el2.data('nestingLevel', $el2.data('nestingLevel') || $el2.parentsUntil($body).length);
+            return $el1.data('nestingLevel') > $el2.data('nestingLevel') ? $el1 : $el2;
           });
         }
       };
@@ -162,22 +174,22 @@ module.exports = function (grunt) {
     async.each(this.files, function (file, filesAsyncCb) {
       async.each(file.src, function (filepath, filePathAsyncCB) {
 
-        var fileContent = grunt.file.read(filepath, {encoding: 'utf8'}),
-          $ = cheerio.load(fileContent),
+        var document = grunt.file.read(filepath, {encoding: 'utf8'}),
+          $ = cheerio.load(document),
           blocks = {},
+          $body = $,
           $block = null;
 
-        while (($block = getTheDeepestBlock($))) {
+        while (($block = getTheDeepestBlock($, $body))) {
           var blockName = $block.attr(CONSTS.ATTR.YO_BLOCK);
-          var result = handleBlock($block, $);
+          var result = handleBlock($block, $body, $);
 
           if (!result) {
             return filePathAsyncCB('Can\'t handle block');
           }
         }
-
         if (index[blockName]) {
-          index[blockName].view = $.html();
+          index[blockName].view = $body.html();
         }
         //View tpl writing
         grunt.file.write(options.index, JSON.stringify(index), {encoding: 'utf8'});
@@ -185,7 +197,7 @@ module.exports = function (grunt) {
 
         //Final template saving
         grunt.file.write(file.dest, $body.html(), {encoding: 'utf8'});
-        console.log($body.html());
+
       }, filesAsyncCb);
     }, function (err) {
       if (err) {
