@@ -1,9 +1,9 @@
 'use strict';
 module.exports = function (grunt) {
 
-  var jsdom = require('jsdom'),
+  var cheerio = require('cheerio'),
     async = require('async'),
-    getFirstCommentValueFromEl = function ($el, $) {
+    getFirstCommentValueFromEl = function ($el) {
       var firstComment = $el ? $el.contents().filter(function () {
         return this.nodeType === 8;
       }).get(0) : false;
@@ -37,21 +37,15 @@ module.exports = function (grunt) {
         grunt.log.writeln.apply(grunt.log, (msgList instanceof Array) ? msgList : [msgList]);
       },
       usages = {},
-      views = {},
       handleUsageHtml = function (usage) {
-        jsdom.env(usage,
-          [jquery],
-          function (errors, window) {
-            if (errors) {
-              errorCallback(errors);
-            } else {
-              var $ = window.$,
-                $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
-                blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK);
-              usages[blockName] = usage;
-            }
-            return usages;
-          });
+        if (usage) {
+            var $ = cheerio.load(usage),
+            $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
+            blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK);
+          usages[blockName] = usage;
+        } else {
+          errorCallback('Any troubles with usage.');
+        }
         return usages;
       },
       index = {},
@@ -66,84 +60,87 @@ module.exports = function (grunt) {
 
     this.files.forEach(function (file) {
       async.each(file.src, function (filepath, callback) {
-        jsdom.env(grunt.file.read(filepath, {encoding: 'utf8'}),
-          [jquery],
-          function (errors, window) {
-            if (errors) {
-              errorCallback(errors);
-            } else {
-              var $ = window.$,
-                $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
-                blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
-                blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
-                blockDescription = getFirstCommentValueFromEl($block),
-                blockIndex = {params: {}, match: blockMatchExpression};
 
-              if (!blockDescription) {
-                grunt.log.error('Block "' + blockName + '" is not documented. ' +
-                'The first direct child or block must be a comment');
-                taskSuccess = false;
-                return callback('Block undocumented');
-              }
+        var fileContents = grunt.file.read(filepath, {encoding: 'utf8'}),
+        $ = cheerio.load(fileContents);
 
-              $block.removeAttr(CONSTS.ATTR.RULE_BLOCK);
-              blockIndex.description = blockDescription;
 
-              /**
-               * paramMap[parameterName][ip]  – insert parameter
-               * paramMap[parameterName][rp]   – replace parameter
-               * @type {{}}
-               */
+        var $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
+          blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
+          blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
+          blockDescription = getFirstCommentValueFromEl($block),
+          blockIndex = {params: {}, match: blockMatchExpression};
 
-              var paramMap = {};
 
-              $('[' + CONSTS.ATTR.RULE_PARAM + ']').each(function () {
-                var $this = $(this),
-                  paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
-                paramMap[paramName] = paramMap[paramName] || {};
-                paramMap[paramName].param = $this;
-                //CHECK COMPLEX INSERT
-                paramMap[paramName].ip = $this.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').html() !== undefined;
-              });
 
-              $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
-                var $this = $(this),
-                  paramName = $this.attr(CONSTS.ATTR.RULE_PARAM_REPLACE);
-                paramMap[paramName] = paramMap[paramName] || {};
-                paramMap[paramName].rp = $this;
-              });
+        if (!blockDescription) {
+          grunt.log.error('Block "' + blockName + '" is not documented. ' +
+          'The first direct child or block must be a comment');
+          taskSuccess = false;
+          return callback('Block undocumented');
+        }
 
-                Object.keys(paramMap).forEach(function (paramName) {
-                var paramObject = paramMap[paramName],
-                  paramDescription = getFirstCommentValueFromEl(paramObject.param) || getFirstCommentValueFromEl(paramObject.rp);
-                if (!paramDescription) {
-                  grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
-                  'The first direct child or parameter must be a comment');
-                  taskSuccess = false;
-                  return callback('Undocumented');
-                }
+        $block.removeAttr(CONSTS.ATTR.RULE_BLOCK);
+        blockIndex.description = blockDescription;
 
-                blockIndex.params[paramName] = {
-                  description: paramDescription,
-                  insert: paramObject.ip,
-                  replace: !!paramObject.rp
-                };
-              });
-              blockIndex.tpl = getUTplFromEl($block, $);
-              index[blockName] = blockIndex;
 
-              Object.keys(usages).forEach(function (usageKey) {
-                if (blockName === usageKey) {
-                  index[blockName].usage = usages[usageKey];
-                }
-                /*else {
-                 grunt.log.error('Usage file for block '+ blockName +' was not found, you must add usage file in /usages folder, for the documentation needs.');
-                 taskSuccess = false;
-                 }*/
-              });
-              callback();
-            }
-          });
+        /**
+         * paramMap[parameterName][ip]  – insert parameter
+         * paramMap[parameterName][rp]   – replace parameter
+         * @type {{}}
+         */
+
+        var paramMap = {};
+
+        $('[' + CONSTS.ATTR.RULE_PARAM + ']').each(function () {
+          var $this = $(this),
+            paramName = $this.attr(CONSTS.ATTR.RULE_PARAM);
+          paramMap[paramName] = paramMap[paramName] || {};
+          paramMap[paramName].param = $this;
+          //CHECK COMPLEX INSERT
+          paramMap[paramName].ip = $this.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').html() !== undefined;
+        });
+
+        $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
+          var $this = $(this),
+            paramName = $this.attr(CONSTS.ATTR.RULE_PARAM_REPLACE);
+          paramMap[paramName] = paramMap[paramName] || {};
+          paramMap[paramName].rp = $this;
+        });
+
+
+        Object.keys(paramMap).forEach(function (paramName) {
+          var paramObject = paramMap[paramName],
+            paramDescription = getFirstCommentValueFromEl(paramObject.param) || getFirstCommentValueFromEl(paramObject.rp);
+          if (!paramDescription) {
+            grunt.log.error('Parameter "' + paramName + '" in block "' + blockName + '" is not docummented. ' +
+            'The first direct child or parameter must be a comment');
+            taskSuccess = false;
+            return callback('Undocumented');
+          }
+
+          blockIndex.params[paramName] = {
+            description: paramDescription,
+            insert: paramObject.ip,
+            replace: !!paramObject.rp
+          };
+        });
+
+
+        blockIndex.tpl = getUTplFromEl($block, $);
+        index[blockName] = blockIndex;
+
+        Object.keys(usages).forEach(function (usageKey) {
+          if (blockName === usageKey) {
+            index[blockName].usage = usages[usageKey];
+          }
+          /*else {
+           grunt.log.error('Usage file for block '+ blockName +' was not found, you must add usage file in /usages folder, for the documentation needs.');
+           taskSuccess = false;
+           }*/
+        });
+        callback();
+
       }, function (err) {
         if (err) {
           log(err);
