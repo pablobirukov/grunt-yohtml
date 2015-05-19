@@ -175,7 +175,9 @@ module.exports = function (grunt) {
       async.each(file.src, function (filepath, filePathAsyncCB) {
 
         var document = grunt.file.read(filepath, {encoding: 'utf8'}),
-          $ = cheerio.load(document),
+          $ = cheerio.load(document, {
+            decodeEntities: false
+          }),
           blocks = {},
           $body = $,
           $block = null;

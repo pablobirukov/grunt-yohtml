@@ -98,7 +98,7 @@ module.exports = function (grunt) {
           paramMap[paramName] = paramMap[paramName] || {};
           paramMap[paramName].param = $this;
           //CHECK COMPLEX INSERT
-          paramMap[paramName].ip = $this.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').html() !== undefined;
+          paramMap[paramName].ip = $this.find('[' + CONSTS.ATTR.RULE_PARAM_INSERT + ']').html() !== null;
         });
 
         $('[' + CONSTS.ATTR.RULE_PARAM_REPLACE + ']').each(function () {
