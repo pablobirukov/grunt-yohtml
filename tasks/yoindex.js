@@ -60,18 +60,13 @@ module.exports = function (grunt) {
 
     this.files.forEach(function (file) {
       async.each(file.src, function (filepath, callback) {
-
         var fileContents = grunt.file.read(filepath, {encoding: 'utf8'}),
         $ = cheerio.load(fileContents);
-
-
         var $block = $('[' + CONSTS.ATTR.RULE_BLOCK + ']'),
           blockName = $block.attr(CONSTS.ATTR.RULE_BLOCK),
           blockMatchExpression = $block.attr(CONSTS.ATTR.RULE_BLOCK_MATCH),
           blockDescription = getFirstCommentValueFromEl($block),
           blockIndex = {params: {}, match: blockMatchExpression};
-
-
 
         if (!blockDescription) {
           grunt.log.error('Block "' + blockName + '" is not documented. ' +

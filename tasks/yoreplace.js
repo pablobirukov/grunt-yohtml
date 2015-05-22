@@ -176,7 +176,8 @@ module.exports = function (grunt) {
 
         var document = grunt.file.read(filepath, {encoding: 'utf8'}),
           $ = cheerio.load(document, {
-            decodeEntities: false
+            decodeEntities: false,
+            normalizeWhitespace: true
           }),
           blocks = {},
           $body = $,
@@ -200,7 +201,7 @@ module.exports = function (grunt) {
         //Final template saving
         grunt.file.write(file.dest, $body.html(), {encoding: 'utf8'});
 
-      }, filesAsyncCb);
+      }, done(taskSuccess));
     }, function (err) {
       if (err) {
         //log('REMOVE log call: ', err);
